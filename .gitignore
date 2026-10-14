@@ -1,5 +1,21 @@
-# Logs
-logs
+# ==============================================================================
+# AlgoNotebook — .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Dependencias y compilación
+# ------------------------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*.local
+
+# ------------------------------------------------------------------------------
+# 2. Logs y reportes
+# ------------------------------------------------------------------------------
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,28 +23,58 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ------------------------------------------------------------------------------
+# 3. Herramientas y artefactos de IA (Agentes, Copilot, Claude, OpenCode)
+# ------------------------------------------------------------------------------
+.agents/
+Agents.md
+_context.md
+.claude/
+.claudian/
+.copilot/
+copilot/
+.github/agents/
+.opencode/
+outputs/
+.cursor/
+.cursorrules
+.windsurf/
+*.chat
+*.prompt
+*.prompt.md
 
-# Editor directories and files
+# ------------------------------------------------------------------------------
+# 4. Obsidian y Vault tooling redundante
+# ------------------------------------------------------------------------------
+.obsidian/
+.smart-env/
+.trash/
+*.canvas
+*.base
+templates/
+
+# ------------------------------------------------------------------------------
+# 5. Editores e IDEs
+# ------------------------------------------------------------------------------
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
+# ------------------------------------------------------------------------------
+# 6. Sistema Operativo
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
 
-
-
-# Ignore Smart Environment folder
-.smart-env
-
-# Python artifacts
+# ------------------------------------------------------------------------------
+# 7. Artefactos de Python
+# ------------------------------------------------------------------------------
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
