@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoNotebook — Vol. IV Engineering Lab</title>
+<!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#eae8e4",
+            "on-surface-variant": "#45474b",
+            "inverse-primary": "#c2c7d0",
+            "background": "#fbf9f5",
+            "primary-container": "#1e232a",
+            "surface": "#fbf9f5",
+            "on-error": "#ffffff",
+            "on-primary-container": "#858a93",
+            "secondary-fixed-dim": "#bfc7d5",
+            "surface-variant": "#e4e2de",
+            "tertiary-container": "#24231e",
+            "primary": "#080d13",
+            "on-secondary": "#ffffff",
+            "primary-fixed": "#dee2ec",
+            "on-tertiary": "#ffffff",
+            "ink-primary": "#1E232A",
+            "ink-muted": "#9DA4B0",
+            "on-error-container": "#93000a",
+            "highlighter-success": "#BBF7D0",
+            "paper-border": "#E5E0D8",
+            "error": "#ba1a1a",
+            "tertiary": "#0e0d09",
+            "on-surface": "#1b1c1a",
+            "outline": "#75777b",
+            "primary-fixed-dim": "#c2c7d0",
+            "secondary-fixed": "#dbe3f1",
+            "on-primary-fixed": "#171c23",
+            "tertiary-fixed-dim": "#cac6be",
+            "paper-grid": "#EAE5DC",
+            "highlighter-swap": "#FFD7BA",
+            "on-primary-fixed-variant": "#42474f",
+            "ink-secondary": "#5C6470",
+            "on-primary": "#ffffff",
+            "on-tertiary-container": "#8d8a83",
+            "paper-surface": "#FFFFFF",
+            "highlighter-compare": "#FEF08A",
+            "on-secondary-fixed-variant": "#3f4753",
+            "inverse-surface": "#30312e",
+            "inverse-on-surface": "#f2f0ed",
+            "paper-base": "#FDFBF7",
+            "error-container": "#ffdad6",
+            "surface-container-highest": "#e4e2de",
+            "highlighter-pointer": "#E9D5FF",
+            "on-tertiary-fixed": "#1d1c17",
+            "surface-bright": "#fbf9f5",
+            "secondary": "#575f6b",
+            "surface-container-low": "#f5f3ef",
+            "surface-dim": "#dbdad6",
+            "outline-variant": "#c5c6cb",
+            "on-tertiary-fixed-variant": "#494741",
+            "on-background": "#1b1c1a",
+            "surface-container": "#efeeea",
+            "tertiary-fixed": "#e7e2da",
+            "on-secondary-container": "#5b636f",
+            "surface-tint": "#5a5f67",
+            "on-secondary-fixed": "#141c26",
+            "surface-container-lowest": "#ffffff",
+            "secondary-container": "#d8e0ee"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "margin-mobile": "1rem",
+            "gutter-sm": "0.75rem",
+            "margin": "2rem",
+            "space-xs": "0.25rem",
+            "gutter-lg": "1.75rem",
+            "gutter": "1.25rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["JetBrains Mono"],
+            "code-lg": ["JetBrains Mono"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "code-md": ["JetBrains Mono"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "code-sm": ["JetBrains Mono"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "code-lg": ["15px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "code-md": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Technical engineering dot grid pattern */
+    .bg-dot-grid {
+      background-image: radial-gradient(#EAE5DC 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      background-position: 0 0;
+    }
+    
+    /* Fine millimeter graph grid for margin notes */
+    .bg-graph-grid {
+      background-image: linear-gradient(to right, #EAE5DC 1px, transparent 1px),
+                        linear-gradient(to bottom, #EAE5DC 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+
+    /* Calibrated slide-rule measurement ticks */
+    .ruler-ticks {
+      background-image: repeating-linear-gradient(
+        to right,
+        #9DA4B0 0px,
+        #9DA4B0 1px,
+        transparent 1px,
+        transparent 8px,
+        #5C6470 8px,
+        #5C6470 9px,
+        transparent 9px,
+        transparent 16px,
+        #1E232A 16px,
+        #1E232A 17.5px,
+        transparent 17.5px,
+        transparent 24px
+      );
+      height: 7px;
+    }
+
+    /* Tactile paper card elevation */
+    .shadow-tactile-card {
+      box-shadow: 0 1px 3px rgba(30, 35, 42, 0.04), 0 4px 14px rgba(30, 35, 42, 0.03);
+    }
+
+    .shadow-postit {
+      box-shadow: 2px 3px 8px rgba(30, 35, 42, 0.08), 0 1px 2px rgba(30, 35, 42, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-paper-base text-ink-primary font-body-md min-h-screen flex flex-col selection:bg-highlighter-compare selection:text-ink-primary">
+<!-- TOP APP BAR (Shared Components: TopNavBar) -->
+<header class="bg-paper-surface border-b border-paper-border shadow-sm docked full-width top-0 z-30 flex justify-between items-center w-full px-space-lg h-14">
+<!-- Left Cluster: Brand, Archival Stamp & Breadcrumb Selector -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-ink-primary text-xl" data-icon="menu_book">menu_book</span>
+<span class="font-headline-md text-headline-md text-ink-primary tracking-tight font-extrabold">AlgoNotebook</span>
+</div>
+<div class="hidden sm:inline-flex items-center px-2 py-0.5 rounded border border-paper-border bg-surface-container-low text-ink-secondary font-label-sm text-label-sm">
+        Vol. IV — Algo Lab
+      </div>
+<!-- Vertical divider -->
+<div class="h-4 w-px bg-paper-border mx-1"></div>
+<!-- Breadcrumbs & Algorithm Selector Dropdown -->
+<div class="relative group">
+<button class="flex items-center gap-1.5 px-2.5 py-1 rounded border border-paper-border bg-paper-surface hover:bg-surface-container-low text-ink-primary font-label-md text-label-md transition-colors">
+<span class="text-ink-secondary font-normal">Sorting /</span>
+<span class="font-semibold">Bubble Sort</span>
+<span class="material-symbols-outlined text-ink-secondary text-sm" data-icon="expand_more">expand_more</span>
+</button>
+<!-- Dropdown Menu -->
+<div class="absolute left-0 mt-1 w-48 bg-paper-surface border border-paper-border rounded shadow-md hidden group-hover:block z-40 py-1">
+<div class="px-3 py-1 font-label-sm text-label-sm text-ink-muted border-b border-paper-border uppercase">Select Algorithm</div>
+<a class="flex items-center justify-between px-3 py-1.5 font-label-md text-label-md bg-surface-container-low text-ink-primary font-semibold" href="#">
+<span>Bubble Sort</span>
+<span class="material-symbols-outlined text-xs" data-icon="check">check</span>
+</a>
+<a class="block px-3 py-1.5 font-label-md text-label-md text-ink-secondary hover:bg-surface-container-low hover:text-ink-primary" href="#">QuickSort</a>
+<a class="block px-3 py-1.5 font-label-md text-label-md text-ink-secondary hover:bg-surface-container-low hover:text-ink-primary" href="#">BST Insertion</a>
+<a class="block px-3 py-1.5 font-label-md text-label-md text-ink-secondary hover:bg-surface-container-low hover:text-ink-primary" href="#">Merge Sort</a>
+</div>
+</div>
+</div>
+<!-- Center Navigation Links (Exact from Shared Components JSON) -->
+<nav class="hidden lg:flex items-center gap-space-lg">
+<a class="text-ink-primary border-b-2 border-ink-primary font-semibold pb-1 font-label-md text-label-md" href="#">Visualizer</a>
+<a class="text-ink-secondary hover:text-ink-primary pb-1 font-label-md text-label-md" href="#">Curriculum</a>
+<a class="text-ink-secondary hover:text-ink-primary pb-1 font-label-md text-label-md" href="#">Notebooks</a>
+<a class="text-ink-secondary hover:text-ink-primary pb-1 font-label-md text-label-md" href="#">Complexity Lab</a>
+</nav>
+<!-- Right Controls: Study Mode, Actions & Icons -->
+<div class="flex items-center gap-space-sm">
+<!-- Study Mode Toggle -->
+<div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded border border-paper-border" title="Distraction-Free Scholarly Mode">
+<span class="material-symbols-outlined text-ink-secondary text-base" data-icon="light_mode">light_mode</span>
+<span class="font-label-sm text-label-sm text-ink-secondary hidden md:inline">Study Mode</span>
+<button class="w-7 h-4 bg-paper-border rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none flex items-center" id="studyToggle">
+<div class="w-3 h-3 bg-paper-surface rounded-full shadow-sm transform transition-transform duration-200" id="studyKnob"></div>
+</button>
+</div>
+<!-- Reset Data Button -->
+<button class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary font-label-md text-label-md active:translate-y-0.5 transition-transform duration-100 ease-out" title="Re-seed visualizer array">
+<span class="material-symbols-outlined text-sm" data-icon="restart_alt">restart_alt</span>
+<span class="hidden xl:inline">Reset Data</span>
+</button>
+<!-- Export Notes Button -->
+<button class="flex items-center gap-1 px-2.5 py-1 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary font-label-md text-label-md active:translate-y-0.5 transition-transform duration-100 ease-out">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+<span class="hidden md:inline">Export Notes</span>
+</button>
+<!-- Trailing Action Icons (tune, history, bookmark) -->
+<div class="flex items-center border-l border-paper-border pl-2 gap-1 text-ink-secondary">
+<button class="p-1 rounded hover:bg-surface-container-low hover:text-ink-primary active:translate-y-0.5 transition-transform" title="Tune Settings">
+<span class="material-symbols-outlined text-lg" data-icon="tune">tune</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-low hover:text-ink-primary active:translate-y-0.5 transition-transform" title="Run History">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-low hover:text-ink-primary active:translate-y-0.5 transition-transform" title="Save Bookmark">
+<span class="material-symbols-outlined text-lg text-ink-primary" data-icon="bookmark" data-weight="fill" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN LABORATORY WORKSPACE (SideNav + Split Canvas) -->
+<div class="flex-1 flex overflow-hidden">
+<!-- LEFT SIDEBAR (Shared Components: SideNavBar - Compact collapsible desk menu) -->
+<aside class="hidden xl:flex flex-col justify-between w-60 bg-paper-base border-r border-paper-border p-space-sm select-none shrink-0">
+<div class="space-y-space-md">
+<!-- Sidebar Header / Category -->
+<div class="px-2 pt-1">
+<div class="flex items-center gap-2 text-ink-primary">
+<span class="material-symbols-outlined text-lg" data-icon="science">science</span>
+<span class="font-label-md text-label-md uppercase tracking-wider font-bold">DS&amp;A Archive</span>
+</div>
+<p class="font-body-sm text-body-sm text-ink-secondary ml-6">Vol. IV — Algorithms</p>
+</div>
+<!-- Navigation Tabs from Shared Components -->
+<nav class="space-y-1">
+<a class="bg-paper-surface text-ink-primary border border-paper-border rounded shadow-sm font-semibold px-3 py-2 flex items-center gap-2 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-lg text-ink-primary" data-icon="bar_chart">bar_chart</span>
+<span>Sorting</span>
+</a>
+<a class="text-ink-secondary px-3 py-2 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="account_tree">account_tree</span>
+<span>Trees &amp; Graphs</span>
+</a>
+<a class="text-ink-secondary px-3 py-2 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="grid_view">grid_view</span>
+<span>Dynamic Prog.</span>
+</a>
+<a class="text-ink-secondary px-3 py-2 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="linear_scale">linear_scale</span>
+<span>Pointers &amp; Sliders</span>
+</a>
+<a class="text-ink-secondary px-3 py-2 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="science">science</span>
+<span>Laboratory Desk</span>
+</a>
+</nav>
+<!-- CTA Experiment trigger -->
+<div class="pt-2 px-1">
+<button class="w-full py-2 px-3 bg-paper-surface hover:bg-surface-container-low border border-dashed border-ink-secondary rounded flex items-center justify-center gap-1.5 text-ink-primary font-label-md text-label-md active:scale-[0.99] transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span>New Experiment</span>
+</button>
+</div>
+</div>
+<!-- Footer Tab Labels -->
+<div class="border-t border-paper-border pt-2 space-y-1">
+<a class="text-ink-secondary px-3 py-1.5 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-base" data-icon="menu_book">menu_book</span>
+<span>Documentation</span>
+</a>
+<a class="text-ink-secondary px-3 py-1.5 flex items-center gap-2 rounded hover:bg-surface-container-low hover:text-ink-primary font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-base" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+<!-- DESK CONTENT CONTAINER: 2 PANES (Canvas ~69% + Sidebar ~31%) -->
+<main class="flex-1 flex flex-col overflow-y-auto lg:overflow-hidden pb-20">
+<div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-space-md p-space-md min-h-0">
+<!-- 2. CENTER CANVAS (8 cols = approx. 67-70% width) -->
+<section class="lg:col-span-8 flex flex-col bg-paper-surface rounded-lg border border-paper-border shadow-tactile-card overflow-hidden relative">
+<!-- Canvas Top Instrument Bar / Header -->
+<div class="flex flex-wrap items-center justify-between border-b border-paper-border px-space-md py-2.5 bg-paper-surface z-10 gap-2">
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md font-bold tracking-wider text-ink-primary">
+                FIG 3.1: IN-PLACE BUBBLE PASS #1
+              </span>
+<span class="h-3 w-px bg-paper-border"></span>
+<span class="font-label-sm text-label-sm text-ink-secondary">
+                N = 8 Elements
+              </span>
+</div>
+<!-- Metric and Time Complexity Pills -->
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container-low border border-paper-border font-label-sm text-label-sm text-ink-primary font-medium" title="Theoretical Time Complexity">
+<span class="text-ink-muted">Time:</span> O(N²) Worst / O(N) Best
+              </span>
+<span class="px-2 py-0.5 rounded bg-surface-container-low border border-paper-border font-label-sm text-label-sm text-ink-primary font-medium" title="Auxiliary Space">
+<span class="text-ink-muted">Space:</span> O(1) In-Place
+              </span>
+</div>
+</div>
+<!-- Interactive Visualization Drawing Canvas with Technical Dot Grid -->
+<div class="relative flex-1 p-space-lg flex flex-col justify-between bg-dot-grid min-h-[440px]">
+<!-- Realistic Yellow Sticky Callout Note pinned to top-left of canvas -->
+<div class="self-start relative max-w-md bg-[#FFFBEA] border border-[#FDE047] rounded-sm p-space-sm shadow-postit transform -rotate-1 transition-transform hover:rotate-0 z-20">
+<!-- Sticky Tape Visual at top center -->
+<div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-white/70 border-t border-b border-paper-border rotate-2 backdrop-blur-[1px]"></div>
+<div class="flex items-start gap-1.5 pt-1">
+<span class="text-sm select-none">📌</span>
+<div class="font-body-sm text-body-sm text-ink-primary leading-snug">
+<span class="font-bold font-label-sm text-label-sm uppercase tracking-wide">Step 5 of 22:</span>
+                  Comparing <span class="bg-highlighter-compare px-1 py-0.5 font-label-sm rounded font-semibold text-ink-primary">arr[j=2] (val: 42)</span> and <span class="bg-highlighter-compare px-1 py-0.5 font-label-sm rounded font-semibold text-ink-primary">arr[j+1=3] (val: 18)</span>.
+                  <div class="mt-1 text-ink-secondary italic font-body-sm">
+                    Since <code class="font-label-sm font-bold text-ink-primary">42 &gt; 18</code>, a memory register swap will trigger on the next step.
+                  </div>
+</div>
+</div>
+</div>
+<!-- Mathematical Comparison Callout Bracket / Indicator -->
+<div class="flex justify-center my-2">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-paper-surface border border-ink-primary shadow-sm text-ink-primary font-label-sm text-label-sm animate-pulse">
+<span class="material-symbols-outlined text-sm text-ink-primary" data-icon="compare_arrows">compare_arrows</span>
+<span class="font-bold">42 &gt; 18 ? YES</span>
+<span class="text-ink-secondary">→ Swap needed</span>
+</div>
+</div>
+<!-- THE 8 ARRAY VISUALIZER BARS -->
+<div class="w-full flex-1 flex flex-col justify-end pt-4 pb-2">
+<div class="h-64 flex items-end justify-around gap-2 md:gap-4 px-2 md:px-8 border-b-2 border-ink-primary relative">
+<!-- Y-Axis Grid reference lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+<div class="w-full border-b border-dashed border-ink-primary"></div>
+<div class="w-full border-b border-dashed border-ink-primary"></div>
+<div class="w-full border-b border-dashed border-ink-primary"></div>
+<div class="w-full border-b border-dashed border-ink-primary"></div>
+</div>
+<!-- BAR 0: Val 12 (height ~28%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group z-10">
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold mb-1">12</span>
+<div class="w-full max-w-[56px] h-[28%] bg-paper-surface border-[2px] border-ink-primary rounded-t transition-all group-hover:bg-surface-container-low"></div>
+<div class="w-full text-center mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted">0</span>
+</div>
+</div>
+<!-- BAR 1: Val 25 (height ~45%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group z-10">
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold mb-1">25</span>
+<div class="w-full max-w-[56px] h-[45%] bg-paper-surface border-[2px] border-ink-primary rounded-t transition-all group-hover:bg-surface-container-low"></div>
+<div class="w-full text-center mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted">1</span>
+</div>
+</div>
+<!-- BAR 2: Val 42 (ACTIVE COMPARISON, height ~74%, Highlighter Yellow) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end z-20">
+<div class="mb-1 flex flex-col items-center">
+<span class="px-1.5 py-0.5 rounded bg-highlighter-compare border border-ink-primary font-label-sm text-label-sm font-bold text-ink-primary shadow-sm">
+                      42
+                    </span>
+</div>
+<div class="w-full max-w-[56px] h-[74%] bg-highlighter-compare border-[2.5px] border-ink-primary rounded-t ring-2 ring-highlighter-compare/50 transition-all flex flex-col justify-between items-center py-2">
+<span class="material-symbols-outlined text-xs text-ink-primary" data-icon="unfold_more">unfold_more</span>
+<span class="font-label-sm text-label-sm font-bold">CMP</span>
+</div>
+<!-- Pointer cursor chip below index -->
+<div class="w-full flex flex-col items-center mt-1">
+<span class="font-label-sm text-label-sm font-bold text-ink-primary">2</span>
+<span class="mt-0.5 px-1 py-0.2 bg-highlighter-pointer text-ink-primary font-label-sm text-[9px] rounded border border-ink-primary uppercase tracking-tighter">
+                      j=2
+                    </span>
+</div>
+</div>
+<!-- BAR 3: Val 18 (ACTIVE COMPARISON, height ~36%, Highlighter Yellow) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end z-20">
+<div class="mb-1 flex flex-col items-center">
+<span class="px-1.5 py-0.5 rounded bg-highlighter-compare border border-ink-primary font-label-sm text-label-sm font-bold text-ink-primary shadow-sm">
+                      18
+                    </span>
+</div>
+<div class="w-full max-w-[56px] h-[36%] bg-highlighter-compare border-[2.5px] border-ink-primary rounded-t ring-2 ring-highlighter-compare/50 transition-all flex flex-col justify-between items-center py-2">
+<span class="material-symbols-outlined text-xs text-ink-primary" data-icon="unfold_more">unfold_more</span>
+<span class="font-label-sm text-label-sm font-bold">CMP</span>
+</div>
+<!-- Pointer cursor chip below index -->
+<div class="w-full flex flex-col items-center mt-1">
+<span class="font-label-sm text-label-sm font-bold text-ink-primary">3</span>
+<span class="mt-0.5 px-1 py-0.2 bg-highlighter-pointer text-ink-primary font-label-sm text-[9px] rounded border border-ink-primary uppercase tracking-tighter">
+                      j+1=3
+                    </span>
+</div>
+</div>
+<!-- BAR 4: Val 56 (height ~85%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group z-10">
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold mb-1">56</span>
+<div class="w-full max-w-[56px] h-[85%] bg-paper-surface border-[2px] border-ink-primary rounded-t transition-all group-hover:bg-surface-container-low"></div>
+<div class="w-full text-center mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted">4</span>
+</div>
+</div>
+<!-- BAR 5: Val 34 (height ~58%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group z-10">
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold mb-1">34</span>
+<div class="w-full max-w-[56px] h-[58%] bg-paper-surface border-[2px] border-ink-primary rounded-t transition-all group-hover:bg-surface-container-low"></div>
+<div class="w-full text-center mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted">5</span>
+</div>
+</div>
+<!-- BAR 6: Val 68 (height ~92%) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end group z-10">
+<span class="font-label-sm text-label-sm text-ink-primary font-semibold mb-1">68</span>
+<div class="w-full max-w-[56px] h-[92%] bg-paper-surface border-[2px] border-ink-primary rounded-t transition-all group-hover:bg-surface-container-low"></div>
+<div class="w-full text-center mt-1">
+<span class="font-label-sm text-label-sm text-ink-muted">6</span>
+</div>
+</div>
+<!-- BAR 7: Val 88 (SORTED FINAL, height ~100%, Mint Green) -->
+<div class="flex-1 flex flex-col items-center h-full justify-end z-10">
+<div class="mb-1 flex flex-col items-center">
+<span class="px-1.5 py-0.5 rounded bg-highlighter-success border border-ink-primary font-label-sm text-label-sm font-bold text-ink-primary">
+                      88
+                    </span>
+</div>
+<div class="w-full max-w-[56px] h-[100%] bg-highlighter-success border-[2px] border-ink-primary rounded-t transition-all flex flex-col justify-start items-center pt-2">
+<span class="material-symbols-outlined text-xs text-ink-primary" data-icon="check_circle">check_circle</span>
+</div>
+<div class="w-full flex flex-col items-center mt-1">
+<span class="font-label-sm text-label-sm font-semibold text-ink-primary">7</span>
+<span class="mt-0.5 px-1 bg-highlighter-success text-ink-primary font-label-sm text-[8px] rounded border border-ink-primary">
+                      Sorted
+                    </span>
+</div>
+</div>
+</div>
+<!-- Baseline Sub-Axis Legend -->
+<div class="flex items-center justify-between pt-2 px-4 text-ink-muted font-label-sm text-label-sm">
+<span>← Array Index Pointer Traversal</span>
+<span class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-sm bg-highlighter-compare border border-ink-primary inline-block"></span> Compare
+                  <span class="w-2.5 h-2.5 rounded-sm bg-highlighter-swap border border-ink-primary inline-block ml-2"></span> Swap
+                  <span class="w-2.5 h-2.5 rounded-sm bg-highlighter-success border border-ink-primary inline-block ml-2"></span> Locked
+                </span>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. RIGHT SIDEBAR: LAB FOLDER CODE RUNNER & MARGIN NOTES (4 cols = approx. 30-33%) -->
+<aside class="lg:col-span-4 flex flex-col bg-paper-surface rounded-lg border border-paper-border shadow-tactile-card overflow-hidden">
+<!-- Archival Folder Tabs (Folder Index Header) -->
+<div class="flex items-center justify-between border-b border-paper-border bg-surface-container-high px-2 pt-2 select-none">
+<div class="flex items-center gap-1">
+<!-- Active Python Tab (Styled like a true folded archival sheet) -->
+<button class="px-3.5 py-1.5 bg-paper-surface text-ink-primary border-t border-l border-r border-paper-border rounded-t font-label-md text-label-md font-bold flex items-center gap-1.5 shadow-sm -mb-px z-10">
+<span class="w-2 h-2 rounded-full bg-ink-primary"></span>
+<span>Python</span>
+</button>
+<!-- Inactive C Tab -->
+<button class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary font-label-md text-label-md transition-colors">
+<span>C</span>
+</button>
+<!-- Inactive Pseudocode Tab -->
+<button class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary font-label-md text-label-md transition-colors">
+<span>Pseudocode</span>
+</button>
+</div>
+<!-- Execution Status Chip -->
+<div class="pb-1.5 pr-2">
+<span class="font-label-sm text-label-sm text-ink-muted uppercase">Line 5 active</span>
+</div>
+</div>
+<!-- Code Inspection Pane with Monospace Typography & Line Numbering -->
+<div class="p-space-sm bg-paper-surface border-b border-paper-border overflow-x-auto">
+<div class="font-code-md text-code-md leading-relaxed select-text font-medium text-ink-primary">
+<!-- Line 1 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">1</span>
+<span class="text-ink-secondary">def</span> <span class="text-ink-primary font-semibold">bubble_sort</span>(arr):
+              </div>
+<!-- Line 2 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">2</span>
+<span class="pl-4">n = <span class="text-ink-secondary">len</span>(arr)</span>
+</div>
+<!-- Line 3 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">3</span>
+<span class="pl-4"><span class="text-ink-secondary">for</span> i <span class="text-ink-secondary">in</span> <span class="text-ink-secondary">range</span>(n):</span>
+</div>
+<!-- Line 4 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">4</span>
+<span class="pl-8"><span class="text-ink-secondary">for</span> j <span class="text-ink-secondary">in</span> <span class="text-ink-secondary">range</span>(0, n - i - 1):</span>
+</div>
+<!-- Line 5: ACTIVE CURRENT EXECUTING LINE (Highlighter strip + arrow) -->
+<div class="flex items-center bg-highlighter-compare border-l-4 border-ink-primary px-1 rounded-r py-0.5">
+<span class="w-5 text-right pr-2 text-ink-primary font-bold select-none text-xs">▶</span>
+<span class="pl-7 font-bold text-ink-primary"><span class="text-ink-secondary">if</span> arr[j] &gt; arr[j + 1]:</span>
+</div>
+<!-- Line 6 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">6</span>
+<span class="pl-12">arr[j], arr[j + 1] = arr[j + 1], arr[j]</span>
+</div>
+<!-- Line 7 -->
+<div class="flex items-center hover:bg-surface-container-low px-1 rounded">
+<span class="w-6 text-right pr-3 text-ink-muted select-none text-xs">7</span>
+<span class="pl-12">swaps += 1</span>
+</div>
+</div>
+</div>
+<!-- 'Margin Notes' Panel with Authentic Graph Paper Backing -->
+<div class="flex-1 bg-graph-grid p-space-md flex flex-col justify-between">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between border-b border-paper-border pb-1.5">
+<span class="font-label-md text-label-md font-bold uppercase tracking-wider text-ink-primary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="edit_note">edit_note</span>
+                  Margin Notes: Live State
+                </span>
+<span class="font-label-sm text-label-sm text-ink-muted">PASS #1</span>
+</div>
+<!-- Live Variable Badges -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<!-- Outer loop index i -->
+<div class="p-2 rounded bg-paper-surface border border-paper-border shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-secondary">Outer Index</span>
+<span class="font-code-md text-code-md font-bold px-1.5 py-0.5 bg-surface-container-low border border-paper-border rounded">i = 0</span>
+</div>
+<!-- Inner loop pointer j -->
+<div class="p-2 rounded bg-paper-surface border border-paper-border shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-secondary">Slider Pointer</span>
+<span class="font-code-md text-code-md font-bold px-1.5 py-0.5 bg-highlighter-pointer text-ink-primary border border-ink-primary rounded">j = 2</span>
+</div>
+<!-- arr[j] value -->
+<div class="p-2 rounded bg-paper-surface border border-paper-border shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-secondary">arr[j]</span>
+<span class="font-code-md text-code-md font-bold px-1.5 py-0.5 bg-highlighter-compare text-ink-primary border border-ink-primary rounded">42</span>
+</div>
+<!-- arr[j+1] value -->
+<div class="p-2 rounded bg-paper-surface border border-paper-border shadow-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-secondary">arr[j+1]</span>
+<span class="font-code-md text-code-md font-bold px-1.5 py-0.5 bg-highlighter-compare text-ink-primary border border-ink-primary rounded">18</span>
+</div>
+</div>
+<!-- Swaps tally counter badge -->
+<div class="p-2.5 rounded bg-paper-surface border border-paper-border shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-ink-secondary" data-icon="sync_alt">sync_alt</span>
+<span class="font-body-sm text-body-sm text-ink-primary">Cumulative Swaps</span>
+</div>
+<span class="font-code-md text-code-md font-bold px-2 py-0.5 bg-highlighter-swap text-ink-primary border border-ink-primary rounded">swaps = 1</span>
+</div>
+</div>
+<!-- Mini Complexity & Progress Meter -->
+<div class="mt-4 pt-3 border-t border-paper-border bg-paper-surface/90 backdrop-blur-sm p-2.5 rounded border border-paper-border">
+<div class="flex justify-between items-center font-label-sm text-label-sm text-ink-primary mb-1">
+<span>Comparisons: <strong class="font-bold">3 / 28</strong></span>
+<span>Passes: <strong class="font-bold">1 / 7</strong></span>
+</div>
+<!-- Dual ProgressBar -->
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex border border-paper-border">
+<div class="bg-ink-primary h-full rounded-full transition-all" style="width: 14%"></div>
+</div>
+<p class="font-label-sm text-[10px] text-ink-muted mt-1.5 text-right">
+                O(½ N(N-1)) Comparisons limit
+              </p>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- 4. BOTTOM FLOATING BAR: MILLIMETER RULER PLAYBACK CONTROLLER -->
+<footer class="fixed bottom-0 left-0 right-0 bg-paper-surface border-t border-paper-border shadow-lg z-30 flex flex-col">
+<!-- Millimeter & Centimeter Measurement Calibration Ruler -->
+<div class="w-full ruler-ticks border-b border-paper-border/60 opacity-80"></div>
+<div class="max-w-7xl mx-auto w-full px-space-md py-2.5 flex flex-wrap items-center justify-between gap-space-sm">
+<!-- Left Controls: Array Operations -->
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1.5 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary font-label-md text-label-md flex items-center gap-1 active:translate-y-0.5 transition-transform" title="Randomize Array Numbers">
+<span class="material-symbols-outlined text-sm" data-icon="shuffle">shuffle</span>
+<span class="hidden sm:inline">Shuffle Array</span>
+</button>
+<button class="px-2.5 py-1.5 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary font-label-md text-label-md flex items-center gap-1 active:translate-y-0.5 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+<span class="hidden sm:inline">Custom Input</span>
+</button>
+</div>
+<!-- Center Apparatus: Timeline Scrubber & Core Transport Triggers -->
+<div class="flex items-center gap-3 md:gap-4 flex-1 max-w-xl justify-center">
+<!-- Step Backward -->
+<button class="w-8 h-8 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary flex items-center justify-center active:translate-y-0.5 transition-transform" title="Previous Step">
+<span class="material-symbols-outlined text-lg" data-icon="skip_previous">skip_previous</span>
+</button>
+<!-- Play / Pause apparatus button -->
+<button class="h-9 px-4 rounded bg-ink-primary hover:bg-primary-container text-paper-surface flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5 transition-transform font-label-md text-label-md font-bold" id="playBtn" title="Execute / Pause Step Engine">
+<span class="material-symbols-outlined text-base" data-icon="play_arrow">play_arrow</span>
+<span>Run</span>
+</button>
+<!-- Step Forward -->
+<button class="w-8 h-8 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary flex items-center justify-center active:translate-y-0.5 transition-transform" title="Next Step">
+<span class="material-symbols-outlined text-lg" data-icon="skip_next">skip_next</span>
+</button>
+<!-- Timeline Slide-Rule Scrubber -->
+<div class="flex-1 flex items-center gap-2 max-w-xs">
+<span class="font-label-sm text-label-sm text-ink-muted select-none whitespace-nowrap">0</span>
+<div class="relative w-full flex items-center">
+<input class="w-full h-1.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-ink-primary" max="22" min="1" title="Slide Rule Scrub" type="range" value="5"/>
+</div>
+<span class="font-label-sm text-label-sm text-ink-primary font-bold whitespace-nowrap">5 / 22</span>
+</div>
+</div>
+<!-- Right Controls: Speed Selector Dropdown -->
+<div class="flex items-center gap-2">
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-paper-surface border border-paper-border hover:bg-surface-container-low text-ink-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-sm text-ink-secondary" data-icon="speed">speed</span>
+<span>1.0x Speed</span>
+<span class="material-symbols-outlined text-xs text-ink-secondary" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+</div>
+</div>
+</div>
+</footer>
+<!-- Micro-interactions JavaScript -->
+<script>
+    // Study mode visual toggle
+    const studyToggle = document.getElementById('studyToggle');
+    const studyKnob = document.getElementById('studyKnob');
+    let isStudyMode = false;
+
+    studyToggle.addEventListener('click', () => {
+      isStudyMode = !isStudyMode;
+      if (isStudyMode) {
+        studyToggle.classList.remove('bg-paper-border');
+        studyToggle.classList.add('bg-ink-primary');
+        studyKnob.classList.add('translate-x-3');
+      } else {
+        studyToggle.classList.add('bg-paper-border');
+        studyToggle.classList.remove('bg-ink-primary');
+        studyKnob.classList.remove('translate-x-3');
+      }
+    });
+
+    // Play / Pause toggle icon
+    const playBtn = document.getElementById('playBtn');
+    let isPlaying = false;
+    playBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      const icon = playBtn.querySelector('.material-symbols-outlined');
+      const label = playBtn.querySelector('span:last-child');
+      if (isPlaying) {
+        icon.textContent = 'pause';
+        label.textContent = 'Pause';
+        playBtn.classList.add('ring-2', 'ring-ink-primary/20');
+      } else {
+        icon.textContent = 'play_arrow';
+        label.textContent = 'Run';
+        playBtn.classList.remove('ring-2', 'ring-ink-primary/20');
+      }
+    });
+  </script>
+</body></html>

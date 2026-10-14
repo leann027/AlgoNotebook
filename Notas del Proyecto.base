@@ -1,0 +1,100 @@
+filters:
+  and:
+    - file.ext == "md"
+    - file.hasTag("algonotebook")
+properties:
+  type:
+    displayName: Tipo
+  status:
+    displayName: Estado
+  tags:
+    displayName: Tags
+views:
+  - type: table
+    name: Todas las notas
+    groupBy:
+      property: type
+      direction: ASC
+    order:
+      - file.name
+      - type
+      - status
+      - tags
+    limit: 300
+  - type: table
+    name: MOCs e índices
+    filters:
+      or:
+        - type == "concept"
+        - file.hasTag("algonotebook/moc")
+    order:
+      - file.name
+      - type
+      - status
+    limit: 100
+  - type: table
+    name: Módulos
+    filters:
+      and:
+        - type == "module"
+    groupBy:
+      property: status
+      direction: ASC
+    order:
+      - file.name
+      - tags
+      - status
+    limit: 100
+  - type: table
+    name: Arquitectura y conceptos
+    filters:
+      or:
+        - type == "architecture"
+        - type == "algorithm"
+        - type == "decision"
+    order:
+      - file.name
+      - type
+      - status
+    limit: 100
+  - type: table
+    name: Guías
+    filters:
+      and:
+        - type == "guide"
+    order:
+      - file.name
+      - status
+    limit: 100
+  - type: table
+    name: Estables
+    filters:
+      and:
+        - status == "stable"
+    order:
+      - file.name
+      - type
+      - tags
+    limit: 200
+  - type: table
+    name: Borradores y efímeras
+    filters:
+      or:
+        - status == "draft"
+        - status == "in-progress"
+        - file.hasTag("ciclo/efimero")
+    order:
+      - file.name
+      - file.folder
+      - status
+    limit: 100
+  - type: list
+    name: Archivadas / deprecadas
+    filters:
+      or:
+        - status == "deprecated"
+        - file.hasTag("ciclo/archivado")
+    order:
+      - file.name
+      - status
+    limit: 50

@@ -1,0 +1,100 @@
+diff --git a/src/components/common/ErrorBoundary.tsx b/src/components/common/ErrorBoundary.tsx
+--- a/src/components/common/ErrorBoundary.tsx
++++ b/src/components/common/ErrorBoundary.tsx
+@@ -1,1 +1,1 @@
+-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
++import { Component, type ErrorInfo, type ReactNode } from 'react';
+diff --git a/src/math/optimization/newton-raphson-2d/trace.ts b/src/math/optimization/newton-raphson-2d/trace.ts
+--- a/src/math/optimization/newton-raphson-2d/trace.ts
++++ b/src/math/optimization/newton-raphson-2d/trace.ts
+@@ -73,12 +73,3 @@
+     const det = j00 * j11 - j01 * j10;
+     if (Math.abs(det) < 1e-9) {
+-      // Regularización de Levenberg-Marquardt ante singularidad del Jacobiano
+-      const regDet = det >= 0 ? 1e-6 : -1e-6;
+-      const dx = -(j11 * f1 - j01 * f2) / regDet;
+-      const dy = -(-j10 * f1 + j00 * f2) / regDet;
+-      curX = curX + dx;
+-      curY = curY + dy;
+-      points.push({ x: curX, y: curY, role: 'approximation' });
+-      continue;
++      break;
+     }
+@@ -118,4 +109,6 @@
+   ];
+ 
+-  return Array.from({ length: totalSteps }, (_, stepIdx) => {
++  const frameCount = Math.max(1, points.length > 1 ? points.length - 1 : 1);
++
++  return Array.from({ length: frameCount }, (_, stepIdx) => {
+     const activePoint = points[stepIdx] ?? points[points.length - 1] ?? { x: initX, y: initY };
+     const nextPoint = points[stepIdx + 1] ?? activePoint;
+@@ -152,4 +145,6 @@
+     };
+ 
++    const isSingular = Math.abs(detJ) < 1e-9;
++
+     return {
+       stepIndex: stepIdx + 1,
+-      totalSteps,
+-      title: `Iteración k = ${stepIdx}: (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)})`,
++      totalSteps: frameCount,
++      title: isSingular
++        ? `Iteración k = ${stepIdx} [Jacobiano Singular]: (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)})`
++        : `Iteración k = ${stepIdx}: (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)})`,
+       parameters: { x: activePoint.x, y: activePoint.y, residualNorm: normF, detJ },
+@@ -162,4 +157,6 @@
+       proofStep,
+       explanation: {
+-        stepLabel: `Iteración k=${stepIdx}`,
+-        text: `Vector x_k = (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)}). Residuo ||F(x_k)|| = ${normF.toExponential(3)}. Actualización Δx calculada mediante la inversa del Jacobiano det(J) = ${detJ.toFixed(3)}.`,
++        stepLabel: isSingular ? `Iteración k=${stepIdx} (Singularidad)` : `Iteración k=${stepIdx}`,
++        text: isSingular
++          ? `Vector x_k = (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)}). det(J) = 0 (Jacobiano singular en x = y). El sistema lineal J·Δx = -F no tiene solución única y el método no puede continuar sin regularización.`
++          : `Vector x_k = (${activePoint.x.toFixed(4)}, ${activePoint.y.toFixed(4)}). Residuo ||F(x_k)|| = ${normF.toExponential(3)}. Actualización Δx calculada mediante la inversa del Jacobiano det(J) = ${detJ.toFixed(3)}.`,
+         subNote: `Raíz exacta x* = (${exactRoot.x.toFixed(4)}, ${exactRoot.y.toFixed(4)})`,
+diff --git a/src/algorithms/trees/priority-queue/trace.ts b/src/algorithms/trees/priority-queue/trace.ts
+--- a/src/algorithms/trees/priority-queue/trace.ts
++++ b/src/algorithms/trees/priority-queue/trace.ts
+@@ -77,2 +77,8 @@
+-    activeNodeId: activeIdx !== null && activeIdx !== undefined ? `node-${activeIdx}` : null,
+-    insertedNodeId: highlightIdx !== null && highlightIdx !== undefined ? `node-${highlightIdx}` : null,
++    activeNodeId:
++      activeIdx !== null && activeIdx !== undefined && activeIdx < heap.length
++        ? `node-${activeIdx}`
++        : null,
++    insertedNodeId:
++      highlightIdx !== null && highlightIdx !== undefined && highlightIdx < heap.length
++        ? `node-${highlightIdx}`
++        : null,
+@@ -367,13 +373,14 @@
+   // Frame final
++  const isEmpty = heap.length === 0;
+   rawFrames.push({
+     highlightLines: { c: [63], python: [46] },
+     arrayState: [...heap],
+-    elementStates: heap.length > 0 ? Object.fromEntries(heap.map((_, i) => [i, 'sorted'])) : {},
+-    pointers: heap.length > 0 ? { minRoot: 0 } : {},
++    elementStates: isEmpty ? {} : Object.fromEntries(heap.map((_, i) => [i, 'sorted'])),
++    pointers: isEmpty ? {} : { minRoot: 0 },
+     activeAction: 'locked',
+-    treeState: buildTreeState(heap, null, heap.length > 0 ? 0 : null),
++    treeState: buildTreeState(heap, null, isEmpty ? null : 0),
+     explanation: {
+       text: `Estado final de la Cola de Prioridad: ${heap.length} elementos estructurados en Min-Heap válido.`,
+-      subNote:
+-        heap.length > 0
+-          ? `Nuevo mínimo en la raíz: ${heap[0]}. Complejidad garantizada O(log N) para push/pop y O(1) para peek.`
+-          : 'La cola de prioridad se encuentra vacía.',
++      subNote: isEmpty
++        ? 'El montículo ha quedado vacío tras la extracción del elemento.'
++        : `Nuevo mínimo en la raíz: ${heap[0]}. Complejidad garantizada O(log N) para push/pop y O(1) para peek.`,
+     },
+diff --git a/src/math/geometry/affine-transformations/code.py b/src/math/geometry/affine-transformations/code.py
+--- a/src/math/geometry/affine-transformations/code.py
++++ b/src/math/geometry/affine-transformations/code.py
+@@ -31,2 +31,2 @@
+-    det = m[0][0] * m[1][1] - m[0][1] * m[0][1]
+-    print(f"Original: {orig_area:.2f}, Transformed: {trans_area:.2f}, Area ratio: {trans_area/orig_area:.2f}")
++    det = m[0][0] * m[1][1] - m[0][1] * m[1][0]
++    print(f"Original: {orig_area:.2f}, Transformed: {trans_area:.2f}, Area ratio: {trans_area/orig_area:.2f}, det(A): {det:.2f}")
