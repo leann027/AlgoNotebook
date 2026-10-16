@@ -4,6 +4,8 @@ import {
   Check,
   RotateCcw,
   Sun,
+  Moon,
+  BookOpen,
   Keyboard,
   X,
   Bookmark,
@@ -110,6 +112,84 @@ export const UnifiedNotebookHeader: React.FC<UnifiedNotebookHeaderProps> = ({
       }
       return next;
     });
+  };
+
+  // Estado y persistencia del tema (Modo Claro / Modo Oscuro)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const saved = localStorage.getItem('algonotebook-theme');
+      if (saved === 'dark') return true;
+      if (saved === 'light') return false;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const applyTheme = () => {
+      try {
+        const saved = localStorage.getItem('algonotebook-theme');
+        let isDark = false;
+        if (saved === 'dark') {
+          isDark = true;
+        } else if (saved === 'light') {
+          isDark = false;
+        } else {
+          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        setIsDarkMode(isDark);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    applyTheme();
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => {
+      const saved = localStorage.getItem('algonotebook-theme');
+      if (!saved || saved === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    const handleThemeChange = () => applyTheme();
+    window.addEventListener('algonotebook-theme-change', handleThemeChange);
+    window.addEventListener('storage', handleThemeChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
+      window.removeEventListener('algonotebook-theme-change', handleThemeChange);
+      window.removeEventListener('storage', handleThemeChange);
+    };
+  }, []);
+
+  const handleToggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    try {
+      localStorage.setItem('algonotebook-theme', nextDark ? 'dark' : 'light');
+      if (nextDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      window.dispatchEvent(
+        new CustomEvent('algonotebook-theme-change', {
+          detail: { theme: nextDark ? 'dark' : 'light' },
+        })
+      );
+    } catch {
+      // ignore
+    }
   };
 
   // Cierre de dropdowns al hacer clic fuera o presionar Escape
@@ -237,7 +317,7 @@ export const UnifiedNotebookHeader: React.FC<UnifiedNotebookHeaderProps> = ({
             {/* Menú Desplegable Agrupado por Categorías */}
             {isCatalogDropdownOpen && (
               <div
-                className={`absolute left-0 top-full mt-1 w-64 sm:w-72 max-h-96 overflow-y-auto bg-paper-surface border border-paper-border rounded shadow-md z-50 py-1 animate-in fade-in duration-100`}
+                className={`absolute left-0 top-full mt-1 w-64 sm:w-72 max-h-96 overflow-y-auto bg-paper-surface border border-paper-border rounded shadow-md z-50 py-1 animate-slide-down`}
                 role="listbox"
               >
                 <div className="px-3 py-1 font-mono text-[10px] text-ink-muted border-b border-paper-border uppercase tracking-wider select-none flex justify-between items-center bg-surface-container-low">
@@ -331,12 +411,30 @@ export const UnifiedNotebookHeader: React.FC<UnifiedNotebookHeaderProps> = ({
 
       {/* 3. Lado Derecho: Controles de Acción */}
       <div className="flex items-center gap-2 shrink-0">
+        {/* Selector de Tema Claro/Oscuro */}
+        <button
+          type="button"
+          onClick={handleToggleTheme}
+          className="p-1.5 rounded hover:bg-surface-container-low hover:text-ink-primary active:translate-y-0.5 transition-transform flex items-center gap-1.5 focus:outline-none text-ink-secondary cursor-pointer border border-transparent hover:border-paper-border"
+          title={isDarkMode ? 'Cambiar a Modo Claro (Papel)' : 'Cambiar a Modo Oscuro (Night Lab)'}
+          aria-label={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+        >
+          {isDarkMode ? (
+            <Sun className="w-4 h-4 text-amber-500 hover:text-amber-400 transition-colors" />
+          ) : (
+            <Moon className="w-4 h-4 text-ink-secondary hover:text-ink-primary transition-colors" />
+          )}
+          <span className="hidden xl:inline font-mono text-[11px] font-semibold text-ink-secondary hover:text-ink-primary">
+            {isDarkMode ? 'Claro' : 'Oscuro'}
+          </span>
+        </button>
+
         {/* Modo Estudio Toggle */}
         <div
           className={TACTILE_SWITCH_CONTAINER}
-          title="Modo de Estudio Libre de Distracciones"
+          title="Modo de Estudio Libre de Distracciones (Ocultar Barra Lateral)"
         >
-          <Sun className="w-3.5 h-3.5 text-ink-secondary" />
+          <BookOpen className="w-3.5 h-3.5 text-ink-secondary" />
           <span className="text-[11px] font-medium text-ink-secondary hidden md:inline">
             Modo Estudio
           </span>
@@ -410,11 +508,11 @@ export const UnifiedNotebookHeader: React.FC<UnifiedNotebookHeaderProps> = ({
           role="dialog"
           aria-modal="true"
           aria-labelledby="unified-shortcuts-title"
-          className="fixed inset-0 bg-ink-primary/30 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 bg-ink-primary/30 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setIsBuiltInShortcutsOpen(false)}
         >
           <div
-            className={`bg-paper-surface border border-paper-border rounded-lg ${TACTILE_CARD} w-full max-w-md p-5 text-ink-primary relative select-none`}
+            className={`bg-paper-surface border border-paper-border rounded-lg ${TACTILE_CARD} w-full max-w-md p-5 text-ink-primary relative select-none animate-modal-in`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-paper-border mb-4">

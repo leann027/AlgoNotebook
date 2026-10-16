@@ -405,7 +405,7 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
               >
                 <span>{cat.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                     selectedCategory === cat.id
                       ? 'bg-paper-surface/20 text-paper-surface'
                       : 'bg-surface-container border border-paper-border text-ink-muted'
@@ -474,7 +474,7 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
           </button>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4.5 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-8">
           {filteredAlgorithms.map((algo) => {
             const noteText = userNotes[algo.metadata.id] || '';
             const quiz = ALGORITHM_FLASH_QUIZZES[algo.metadata.id];
@@ -798,13 +798,13 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
                 {activeTab === 'notes' && (
                   <div className="p-3.5 border-b border-paper-border bg-[#FFFDF5]">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 font-mono text-xs text-amber-900 font-bold">
-                        <StickyNote className="w-3.5 h-3.5 text-amber-600" />
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-amber-900 dark:text-amber-400 font-bold">
+                        <StickyNote className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         <span>Bloc de Notas del Estudiante</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {isNoteSaved && (
-                          <span className="font-mono text-[10px] text-emerald-700 font-bold flex items-center gap-1 animate-in fade-in">
+                          <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1 animate-fade-in">
                             <Check className="w-3 h-3" />
                             Guardado ✓
                           </span>
@@ -819,7 +819,7 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
                       onChange={(e) => handleUpdateNote(algo.metadata.id, e.target.value)}
                       placeholder="Escribe aquí tus observaciones, mnemotécnicas, dudas o reflexiones para estudiar este algoritmo..."
                       rows={4}
-                      className="w-full p-2.5 text-xs font-sans rounded-md bg-paper-surface border border-amber-200 text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-xs resize-none"
+                      className="w-full p-2.5 text-xs font-sans rounded-md bg-paper-surface border border-amber-200 dark:border-amber-800/60 text-ink-primary placeholder:text-ink-muted focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-xs resize-none"
                     />
                   </div>
                 )}
@@ -827,8 +827,8 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
                 {/* 3. Pestaña de Desafío Conceptual (Flash Quiz) */}
                 {activeTab === 'quiz' && (
                   <div className="p-3.5 border-b border-paper-border bg-surface-container-low/40">
-                    <div className="flex items-center gap-1.5 font-mono text-xs text-indigo-900 font-bold mb-2">
-                      <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
+                    <div className="flex items-center gap-1.5 font-mono text-xs text-indigo-900 dark:text-indigo-300 font-bold mb-2">
+                      <HelpCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       <span>Pregunta de Laboratorio / Desafío Conceptual</span>
                     </div>
 
@@ -842,13 +842,13 @@ export const NotebooksView: React.FC<NotebooksViewProps> = ({ onSelectAlgorithm 
                     </div>
 
                     {isAnswerRevealed ? (
-                      <div className="p-3 rounded-md bg-indigo-50 border border-indigo-200 text-xs text-indigo-950 animate-in fade-in duration-150">
-                        <div className="flex items-center justify-between font-mono text-[10px] font-bold text-indigo-800 uppercase tracking-wider mb-1">
+                      <div className="p-3 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-xs text-indigo-950 dark:text-indigo-200 animate-fade-in">
+                        <div className="flex items-center justify-between font-mono text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider mb-1">
                           <span>EXPLICACIÓN DEL INSTRUCTOR</span>
                           <button
                             type="button"
                             onClick={() => toggleRevealAnswer(algo.metadata.id)}
-                            className="text-indigo-600 hover:underline"
+                            className="text-indigo-600 dark:text-indigo-400 hover:underline"
                           >
                             Ocultar
                           </button>

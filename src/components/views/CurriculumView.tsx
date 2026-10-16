@@ -311,7 +311,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
           </div>
           <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden border border-paper-border">
             <div
-              className="h-full bg-emerald-600 transition-all duration-300 rounded-full"
+              className="h-full bg-emerald-600 transition-[width] duration-300 rounded-full"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -533,7 +533,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                   markerHeight="6"
                   orient="auto-start-reverse"
                 >
-                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#9DA4B0" />
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#5A6474" />
                 </marker>
               </defs>
 
@@ -551,7 +551,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                     <path
                       d={pathD}
                       fill="none"
-                      stroke="#CBD5E1"
+                      stroke="#94A3B8"
                       strokeWidth="1.5"
                       strokeDasharray="4 2"
                       markerEnd="url(#arrow-marker)"
@@ -582,10 +582,10 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                       rx="6"
                       className={`transition-all ${
                         node.isSelected
-                          ? 'fill-white stroke-ink-primary stroke-2 filter drop-shadow-sm'
+                          ? 'fill-paper-surface stroke-ink-primary stroke-2 filter drop-shadow-sm'
                           : node.isCompleted
-                          ? 'fill-emerald-50/50 stroke-emerald-300 stroke-1 hover:stroke-ink-primary'
-                          : 'fill-white stroke-paper-border stroke-1 hover:stroke-ink-primary hover:drop-shadow-xs'
+                          ? 'fill-emerald-50/50 dark:fill-emerald-950/40 stroke-emerald-300 dark:stroke-emerald-700 stroke-1 hover:stroke-ink-primary'
+                          : 'fill-paper-surface stroke-paper-border stroke-1 hover:stroke-ink-primary hover:drop-shadow-xs'
                       }`}
                     />
 
@@ -612,7 +612,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
                     <text
                       x={rx + 8}
                       y={ry + 32}
-                      className="font-headline font-bold text-[11px] fill-ink-primary group-hover:fill-black"
+                      className="font-headline font-bold text-[11px] fill-ink-primary group-hover:fill-ink-primary"
                     >
                       {node.name.length > 18 ? `${node.name.slice(0, 16)}...` : node.name}
                     </text>
