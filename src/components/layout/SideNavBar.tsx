@@ -219,7 +219,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
 
                 {/* Lista de Algoritmos en esta categoría */}
                 {!isCollapsed && (
-                  <div className="pl-5 space-y-0.5 border-l-2 border-paper-border/80 ml-3.5">
+                  <div className="pl-5 space-y-0.5 border-l-2 border-paper-border/80 ml-3.5 animate-fade-in">
                     {cat.algorithms.map((algo) => {
                       const isActive = selectedAlgorithm === algo.id;
                       const level = ALGORITHM_LEVELS[algo.id] ?? 'intermediate';
@@ -246,7 +246,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
                             <span className="truncate">{algo.name}</span>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                            <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-surface-container text-ink-secondary border border-paper-border">
+                            <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-ink-secondary border border-paper-border">
                               {worstComplexity}
                             </span>
                             {isActive && (
@@ -268,7 +268,7 @@ export const SideNavBar: React.FC<SideNavBarProps> = ({
       <div className="border-t border-paper-border pt-3 px-2 space-y-1 text-xs select-none mt-auto">
         <div className="flex items-center justify-between text-ink-secondary">
           <span className="font-mono text-[11px] font-semibold">AlgoNotebook</span>
-          <span className="px-1.5 py-0.2 rounded bg-highlighter-success/40 text-ink-primary font-mono text-[9px] font-bold border border-ink-primary/20">
+          <span className="px-1.5 py-0.5 rounded bg-highlighter-success/40 text-ink-primary font-mono text-[9px] font-bold border border-ink-primary/20">
             v1.0 Listo
           </span>
         </div>

@@ -41,7 +41,7 @@ export const AlgorithmTechnicalSheet: React.FC<AlgorithmTechnicalSheetProps> = (
             <span className="font-mono text-xs font-bold text-ink-primary leading-none">
               Ficha Técnica
             </span>
-            <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-surface-container text-ink-secondary border border-paper-border uppercase font-semibold">
+            <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-surface-container text-ink-secondary border border-paper-border uppercase font-semibold">
               {sheet.properties.paradigm}
             </span>
           </div>

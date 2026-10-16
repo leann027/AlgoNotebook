@@ -420,11 +420,11 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-ink-primary/50 backdrop-blur-xs animate-in fade-in duration-150 select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-ink-primary/50 backdrop-blur-xs animate-fade-in select-none"
       onClick={onClose}
     >
       <div
-        className="bg-paper-surface border-2 border-paper-border rounded-xl shadow-2xl w-full max-w-3xl max-h-[88vh] flex flex-col text-ink-primary overflow-hidden relative"
+        className="bg-paper-surface border-2 border-paper-border rounded-xl shadow-2xl w-full max-w-3xl max-h-[88vh] flex flex-col text-ink-primary overflow-hidden relative animate-modal-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. Cabecera estilo Ficha de Cuaderno de Ingeniería */}
@@ -438,7 +438,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
                 <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">
                   {metadata?.figureId || 'FICHA TÉCNICA'}
                 </span>
-                <span className="px-2 py-0.2 rounded font-mono text-[10px] font-semibold bg-surface-container-low border border-paper-border text-ink-secondary">
+                <span className="px-2 py-0.5 rounded font-mono text-[10px] font-semibold bg-surface-container-low border border-paper-border text-ink-secondary">
                   {sheet.properties.paradigm}
                 </span>
               </div>
@@ -531,7 +531,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 bg-paper-base/30">
           {/* PESTAÑA 1: INTUICIÓN & METÁFORA */}
           {activeTab === 'intuition' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-fade-in">
               {/* Tarjeta de Metáfora Mental / Analogía del mundo real */}
               {sheet.analogy && (
                 <div className="bg-[#FFFBEA] border border-[#FDE047] rounded-lg p-4 shadow-postit relative">
@@ -605,7 +605,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
 
           {/* PESTAÑA 2: MECÁNICA OPERATIVA PASO A PASO */}
           {activeTab === 'mechanism' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-fade-in">
               <div className="bg-paper-surface border border-paper-border rounded-lg p-4 shadow-xs">
                 <div className="flex items-center gap-2 mb-3">
                   <Cpu className="w-4 h-4 text-indigo-600" />
@@ -655,7 +655,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
 
           {/* PESTAÑA 3: INVARIANTE FORMAL */}
           {activeTab === 'invariant' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-fade-in">
               <div className="bg-paper-surface border border-paper-border rounded-lg p-5 shadow-xs">
                 <div className="flex items-center gap-2 mb-3">
                   <Bookmark className="w-4 h-4 text-emerald-600" />
@@ -683,7 +683,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
 
           {/* PESTAÑA 4: COMPLEJIDAD BIG-O */}
           {activeTab === 'complexity' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-fade-in">
               <div className="bg-paper-surface border border-paper-border rounded-lg p-5 shadow-xs">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="w-4 h-4 text-blue-600" />
@@ -886,7 +886,7 @@ export const AlgorithmTechnicalSheetModal: React.FC<AlgorithmTechnicalSheetModal
 
           {/* PESTAÑA 5: CASOS BORDE */}
           {activeTab === 'edgeCases' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-fade-in">
               <div className="bg-paper-surface border border-paper-border rounded-lg p-5 shadow-xs">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-amber-600" />

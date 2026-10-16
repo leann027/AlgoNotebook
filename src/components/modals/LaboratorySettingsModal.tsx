@@ -11,6 +11,8 @@ import {
   HelpCircle,
   HardDrive,
   Check,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export interface LaboratorySettings {
@@ -20,6 +22,7 @@ export interface LaboratorySettings {
   fontSize: 'sm' | 'md' | 'lg';
   defaultLang: 'python' | 'c';
   pedagogicalDetail: 'rich' | 'concise';
+  theme?: 'light' | 'dark' | 'system';
 }
 
 const DEFAULT_SETTINGS: LaboratorySettings = {
@@ -29,6 +32,7 @@ const DEFAULT_SETTINGS: LaboratorySettings = {
   fontSize: 'md',
   defaultLang: 'python',
   pedagogicalDetail: 'rich',
+  theme: 'system',
 };
 
 export interface LaboratorySettingsModalProps {
@@ -55,6 +59,17 @@ export const LaboratorySettingsModal: React.FC<LaboratorySettingsModalProps> = (
   const [clearedStorage, setClearedStorage] = useState<boolean>(false);
   const clearNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Sincronización del tema ('light' | 'dark' | 'system')
+  const [themePreference, setThemePreference] = useState<'light' | 'dark' | 'system'>(() => {
+    try {
+      const saved = localStorage.getItem('algonotebook-theme');
+      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
+      return 'system';
+    } catch {
+      return 'system';
+    }
+  });
+
   const titleId = useId();
 
   useEffect(() => {
@@ -64,6 +79,55 @@ export const LaboratorySettingsModal: React.FC<LaboratorySettingsModalProps> = (
       }
     };
   }, []);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      try {
+        const saved = localStorage.getItem('algonotebook-theme');
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          setThemePreference(saved);
+        } else {
+          setThemePreference('system');
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener('algonotebook-theme-change', syncTheme);
+    window.addEventListener('storage', syncTheme);
+    return () => {
+      window.removeEventListener('algonotebook-theme-change', syncTheme);
+      window.removeEventListener('storage', syncTheme);
+    };
+  }, []);
+
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    setThemePreference(newTheme);
+    setSettings((prev) => ({ ...prev, theme: newTheme }));
+    try {
+      localStorage.setItem('algonotebook-theme', newTheme);
+      let isDark = false;
+      if (newTheme === 'dark') {
+        isDark = true;
+      } else if (newTheme === 'light') {
+        isDark = false;
+      } else {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      window.dispatchEvent(
+        new CustomEvent('algonotebook-theme-change', {
+          detail: { theme: newTheme },
+        })
+      );
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     try {
@@ -80,6 +144,7 @@ export const LaboratorySettingsModal: React.FC<LaboratorySettingsModalProps> = (
 
   const handleReset = () => {
     setSettings(DEFAULT_SETTINGS);
+    handleThemeChange('system');
   };
 
   const handleClearCache = () => {
@@ -104,11 +169,11 @@ export const LaboratorySettingsModal: React.FC<LaboratorySettingsModalProps> = (
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150"
+      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-paper-surface border border-paper-border rounded-lg shadow-tactile-card w-full max-w-lg p-5 text-ink-primary relative select-none flex flex-col max-h-[90vh] overflow-hidden"
+        className="bg-paper-surface border border-paper-border rounded-lg shadow-tactile-card w-full max-w-lg p-5 text-ink-primary relative select-none flex flex-col max-h-[90vh] overflow-hidden animate-modal-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Panel de Ajustes */}
@@ -178,6 +243,47 @@ export const LaboratorySettingsModal: React.FC<LaboratorySettingsModalProps> = (
           {/* SECCIÓN 1: LIENZO Y VISUAL */}
           {activeSettingsTab === 'visual' && (
             <>
+              {/* Selector de Esquema de Color / Tema */}
+              <div className="p-3 rounded bg-surface-container-low border border-paper-border space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-ink-primary flex items-center gap-1.5">
+                    <Sun className="w-3.5 h-3.5 text-ink-secondary" />
+                    Esquema de Color / Modo de Visualización
+                  </span>
+                  <span className="font-mono text-[10px] text-ink-secondary uppercase">
+                    {themePreference === 'light'
+                      ? 'Claro (Papel)'
+                      : themePreference === 'dark'
+                      ? 'Oscuro (Night Lab)'
+                      : 'Sistema (Auto)'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { id: 'light', label: 'Claro', icon: Sun },
+                    { id: 'dark', label: 'Oscuro', icon: Moon },
+                    { id: 'system', label: 'Sistema', icon: SlidersHorizontal },
+                  ] as const).map((t) => {
+                    const Icon = t.icon;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => handleThemeChange(t.id)}
+                        className={`py-1.5 px-2 text-xs font-mono font-bold rounded border transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+                          themePreference === t.id
+                            ? 'bg-paper-surface border-ink-primary text-ink-primary shadow-xs'
+                            : 'border-paper-border text-ink-secondary hover:bg-paper-surface'
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span>{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Estilo de Textura de Cuadrícula */}
               <div className="p-3 rounded bg-surface-container-low border border-paper-border space-y-2">
                 <div className="flex items-center justify-between">
