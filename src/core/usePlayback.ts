@@ -87,7 +87,7 @@ export function usePlayback(
   }
 
   // Referencias mutables para evitar desincronizaciones y stale closures
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
   const totalStepsRef = useRef<number>(totalSteps);
   const loopRef = useRef<boolean>(loop);
 
@@ -103,60 +103,53 @@ export function usePlayback(
   // 0.5x -> 2000ms | 1.0x -> 1000ms | 2.0x -> 500ms | 4.0x -> 250ms
   const delayMs = Math.round(1000 / speed);
 
-  // Efecto principal del temporizador de reproducción
+  // Efecto principal del motor de animación rAF con sincronización vsync y eliminación de drift temporal
   useEffect(() => {
-    // Si no está reproduciendo, limpiar cualquier temporizador pendiente
     if (!isPlaying) {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
       }
       return;
     }
 
-    // Si ya alcanzó el paso final
-    if (currentStepIndex >= totalSteps) {
-      if (loopRef.current) {
-        timerRef.current = setTimeout(() => {
-          setCurrentStepIndex(1);
-        }, delayMs);
-      } else {
-        setIsPlaying(false);
-      }
-      return;
-    }
+    let rafId: number;
+    let lastTick = performance.now();
 
-    // Programar el siguiente tick de avance
-    timerRef.current = setTimeout(() => {
-      setCurrentStepIndex((prev) => {
-        const next = prev + 1;
-        if (next >= totalSteps) {
-          if (!loopRef.current) {
+    const tick = (now: number) => {
+      const elapsed = now - lastTick;
+      if (elapsed >= delayMs) {
+        // Corrección de drift temporal acumulativo
+        lastTick = now - (elapsed % delayMs);
+        setCurrentStepIndex((prev) => {
+          if (prev >= totalStepsRef.current) {
+            if (loopRef.current) {
+              return 1;
+            }
+            setIsPlaying(false);
+            return totalStepsRef.current;
+          }
+          const next = prev + 1;
+          if (next >= totalStepsRef.current && !loopRef.current) {
             setIsPlaying(false);
           }
-          return totalSteps;
-        }
-        return next;
-      });
-    }, delayMs);
-
-    // Limpieza estricta para evitar timers huérfanos y memory leaks
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
+          return next;
+        });
       }
+      rafId = requestAnimationFrame(tick);
+      rafRef.current = rafId;
     };
-  }, [isPlaying, speed, currentStepIndex, totalSteps, delayMs]);
 
-  useEffect(() => {
+    rafId = requestAnimationFrame(tick);
+    rafRef.current = rafId;
+
     return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
       }
+      rafRef.current = null;
     };
-  }, []);
+  }, [isPlaying, delayMs]);
 
   // ==========================================================================
   // Métodos de Control Memoizados
@@ -168,6 +161,10 @@ export function usePlayback(
   }, []);
 
   const pause = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsPlaying(false);
   }, []);
 
@@ -177,21 +174,37 @@ export function usePlayback(
         setCurrentStepIndex((curr) => (curr >= totalStepsRef.current ? 1 : curr));
         return true;
       }
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
       return false;
     });
   }, []);
 
   const stepForward = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsPlaying(false);
     setCurrentStepIndex((curr) => Math.min(totalStepsRef.current, curr + 1));
   }, []);
 
   const stepBackward = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsPlaying(false);
     setCurrentStepIndex((curr) => Math.max(1, curr - 1));
   }, []);
 
   const goToStep = useCallback((step: number) => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsPlaying(false);
     const clamped = Math.min(totalStepsRef.current, Math.max(1, Math.round(step)));
     setCurrentStepIndex(clamped);
@@ -202,6 +215,10 @@ export function usePlayback(
   }, []);
 
   const reset = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     setIsPlaying(false);
     setCurrentStepIndex(1);
   }, []);

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export interface KeyboardShortcutsHandlers {
   onTogglePlay?: () => void;
@@ -65,6 +65,31 @@ export function useKeyboardShortcuts({
   onToggleHelp,
   onToggleTechnicalSheet,
 }: KeyboardShortcutsHandlers): void {
+  // Referencia mutable siempre actualizada para estabilizar el listener sin recrear el bind
+  const handlersRef = useRef<KeyboardShortcutsHandlers>({
+    onTogglePlay,
+    onStepForward,
+    onStepBackward,
+    onReset,
+    onSetSpeed,
+    onToggleLang,
+    onToggleHelp,
+    onToggleTechnicalSheet,
+  });
+
+  useEffect(() => {
+    handlersRef.current = {
+      onTogglePlay,
+      onStepForward,
+      onStepBackward,
+      onReset,
+      onSetSpeed,
+      onToggleLang,
+      onToggleHelp,
+      onToggleTechnicalSheet,
+    };
+  });
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Ignorar si el usuario está interactuando con inputs de texto
@@ -77,60 +102,65 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      const handlers = handlersRef.current;
+
       // Capturar tecla '?' o 'h' para ayuda
-      if (event.key === '?' || (!event.ctrlKey && !event.metaKey && !event.altKey && (event.key === 'h' || event.key === 'H'))) {
+      if (
+        event.key === '?' ||
+        (!event.ctrlKey && !event.metaKey && !event.altKey && (event.key === 'h' || event.key === 'H'))
+      ) {
         event.preventDefault();
-        onToggleHelp?.();
+        handlers.onToggleHelp?.();
         return;
       }
 
       switch (event.code) {
         case 'Space':
           event.preventDefault();
-          onTogglePlay?.();
+          handlers.onTogglePlay?.();
           break;
 
         case 'ArrowRight':
           event.preventDefault();
-          onStepForward?.();
+          handlers.onStepForward?.();
           break;
 
         case 'ArrowLeft':
           event.preventDefault();
-          onStepBackward?.();
+          handlers.onStepBackward?.();
           break;
 
         case 'KeyR':
           event.preventDefault();
-          onReset?.();
+          handlers.onReset?.();
           break;
 
         case 'Digit1':
         case 'Numpad1':
           event.preventDefault();
-          onSetSpeed?.(0.5);
+          handlers.onSetSpeed?.(0.5);
           break;
 
         case 'Digit2':
         case 'Numpad2':
           event.preventDefault();
-          onSetSpeed?.(1.0);
+          handlers.onSetSpeed?.(1.0);
           break;
 
         case 'Digit3':
         case 'Numpad3':
           event.preventDefault();
-          onSetSpeed?.(2.0);
+          handlers.onSetSpeed?.(2.0);
           break;
 
         case 'KeyL':
           event.preventDefault();
-          onToggleLang?.();
+          handlers.onToggleLang?.();
           break;
 
         case 'KeyT':
           event.preventDefault();
-          onToggleTechnicalSheet?.();
+          handlers.onToggleTechnicalSheet?.();
           break;
 
         default:
@@ -142,15 +172,6 @@ export function useKeyboardShortcuts({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [
-    onTogglePlay,
-    onStepForward,
-    onStepBackward,
-    onReset,
-    onSetSpeed,
-    onToggleLang,
-    onToggleHelp,
-    onToggleTechnicalSheet,
-  ]);
+  }, []);
 }
 

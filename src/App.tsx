@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { BookOpen } from 'lucide-react';
 import {
   UnifiedNotebookHeader,
@@ -125,6 +125,22 @@ const NAV_TABS: NavTabItem[] = [
   { id: 'complexity-lab', label: 'Lab Complejidad' },
 ];
 
+const HEADER_BRAND = {
+  name: 'AlgoNotebook',
+  icon: BookOpen,
+  archivalStamp: 'Laboratorio de Algoritmos DSA',
+};
+
+const MemoizedUnifiedNotebookHeader = memo(UnifiedNotebookHeader);
+const MemoizedSideNavBar = memo(SideNavBar);
+const MemoizedAlgorithmTechnicalSheet = memo(AlgorithmTechnicalSheet);
+const MemoizedAlgorithmTechnicalSheetModal = memo(AlgorithmTechnicalSheetModal);
+const MemoizedCallStackWidget = memo(CallStackWidget);
+const MemoizedCodeNotebookCard = memo(CodeNotebookCard);
+const MemoizedCurriculumView = memo(CurriculumView);
+const MemoizedNotebooksView = memo(NotebooksView);
+const MemoizedComplexityLabView = memo(ComplexityLabView);
+
 function App() {
   // Pestaña de navegación activa en el espacio de trabajo principal
   const [activeTab, setActiveTab] = useState<NavTab>('visualizer');
@@ -201,17 +217,7 @@ function App() {
     reset();
   }, [currentAlgorithm.metadata.category, currentAlgorithm.metadata.id, reset]);
 
-  // Atajos de teclado globales del laboratorio (Space, Arrows, R, 1, 2, 3, L)
-  useKeyboardShortcuts({
-    onTogglePlay: togglePlay,
-    onStepForward: stepForward,
-    onStepBackward: stepBackward,
-    onReset: handleResetData,
-    onSetSpeed: (s: number) => setSpeed(s as PlaybackSpeed),
-    onToggleLang: () => setActiveLang((prev) => (prev === 'python' ? 'c' : 'python')),
-  });
-
-  // Manejador: Selección de algoritmo desde el Navbar
+  // Manejador: Selección de algoritmo desde el Navbar / catálogo
   const handleSelectAlgorithm = useCallback((algoId: string) => {
     if (ALGORITHM_REGISTRY[algoId]) {
       const targetAlgo = ALGORITHM_REGISTRY[algoId];
@@ -226,6 +232,50 @@ function App() {
       );
     }
   }, [reset]);
+
+  const handleSelectAndGoToVisualizer = useCallback((algoId: string) => {
+    handleSelectAlgorithm(algoId);
+    setActiveTab('visualizer');
+  }, [handleSelectAlgorithm]);
+
+  const handleSelectTab = useCallback((tab: string) => {
+    setActiveTab(tab as NavTab);
+  }, []);
+
+  const handleToggleStudyMode = useCallback(() => {
+    setIsStudyMode((prev) => !prev);
+  }, []);
+
+  const handleOpenTechnicalSheet = useCallback(() => {
+    setIsTechSheetOpen(true);
+  }, []);
+
+  const handleCloseTechnicalSheet = useCallback(() => {
+    setIsTechSheetOpen(false);
+  }, []);
+
+  const handleSpeedChange = useCallback((newSpeed: number) => {
+    setSpeed(newSpeed as PlaybackSpeed);
+  }, [setSpeed]);
+
+  const handleToggleLang = useCallback(() => {
+    setActiveLang((prev) => (prev === 'python' ? 'c' : 'python'));
+  }, []);
+
+  const handleSelectLang = useCallback((lang: SupportedLang) => {
+    setActiveLang(lang);
+  }, []);
+
+  // Atajos de teclado globales del laboratorio (Space, Arrows, R, 1, 2, 3, L, T)
+  useKeyboardShortcuts({
+    onTogglePlay: togglePlay,
+    onStepForward: stepForward,
+    onStepBackward: stepBackward,
+    onReset: handleResetData,
+    onSetSpeed: handleSpeedChange,
+    onToggleLang: handleToggleLang,
+    onToggleTechnicalSheet: handleOpenTechnicalSheet,
+  });
 
   const isDynamicInputSupported =
     currentAlgorithm.metadata.category === 'sorting' ||
@@ -243,25 +293,18 @@ function App() {
   return (
     <div className="bg-paper-base text-ink-primary font-body-md min-h-screen flex flex-col selection:bg-highlighter-compare selection:text-ink-primary">
       {/* 1. Header unificado con selector por categorías, bookmarks y navegación */}
-      <UnifiedNotebookHeader
+      <MemoizedUnifiedNotebookHeader
         currentNotebookId="algonotebook"
-        brand={{
-          name: 'AlgoNotebook',
-          icon: BookOpen,
-          archivalStamp: 'Laboratorio de Algoritmos DSA',
-        }}
+        brand={HEADER_BRAND}
         catalogGroups={CATALOG_GROUPS}
         selectedItemId={selectedAlgorithm}
-        onSelectItem={(id) => {
-          handleSelectAlgorithm(id);
-          setActiveTab('visualizer');
-        }}
+        onSelectItem={handleSelectAndGoToVisualizer}
         bookmarkStorageKey="algonotebook_bookmarks"
         navTabs={NAV_TABS}
         activeTab={activeTab}
-        onSelectTab={(tab) => setActiveTab(tab as NavTab)}
+        onSelectTab={handleSelectTab}
         isStudyMode={isStudyMode}
-        onToggleStudyMode={() => setIsStudyMode((prev) => !prev)}
+        onToggleStudyMode={handleToggleStudyMode}
         onReset={handleResetData}
         resetLabel="Reiniciar Datos"
       />
@@ -270,12 +313,9 @@ function App() {
       <div className="flex-1 flex overflow-hidden">
         {/* Barra lateral de navegación con categorías agrupadas (oculta en Study Mode) */}
         {!isStudyMode && (
-          <SideNavBar
+          <MemoizedSideNavBar
             selectedAlgorithm={selectedAlgorithm}
-            onSelectAlgorithm={(id) => {
-              handleSelectAlgorithm(id);
-              setActiveTab('visualizer');
-            }}
+            onSelectAlgorithm={handleSelectAndGoToVisualizer}
           />
         )}
 
@@ -293,28 +333,30 @@ function App() {
                 metadata={currentAlgorithm.metadata}
                 currentValues={rawArray}
                 onApplyInput={isDynamicInputSupported ? handleApplyCustomInput : undefined}
-                onOpenTechnicalSheet={() => setIsTechSheetOpen(true)}
+                onOpenTechnicalSheet={handleOpenTechnicalSheet}
+                isPlaying={isPlaying}
+                playbackSpeed={speed}
               />
 
               {/* Panel lateral derecho: Botón Ficha Técnica + Código fuente + Pila de llamadas */}
               <div className="lg:col-span-4 flex flex-col gap-3.5 overflow-y-auto">
                 {/* Botón táctil para desplegar la Ficha Técnica Flotante */}
-                <AlgorithmTechnicalSheet
+                <MemoizedAlgorithmTechnicalSheet
                   sheet={currentAlgorithm.technicalSheet}
-                  onClick={() => setIsTechSheetOpen(true)}
+                  onClick={handleOpenTechnicalSheet}
                   className="w-full shrink-0"
                 />
 
-                <CodeNotebookCard
+                <MemoizedCodeNotebookCard
                   activeLang={activeLang}
-                  onSelectLang={setActiveLang}
+                  onSelectLang={handleSelectLang}
                   frame={currentFrame}
                   sourceCode={currentAlgorithm.code}
                   className="w-full"
                 />
 
                 {/* Widget de pila de llamadas (Call Stack) */}
-                <CallStackWidget
+                <MemoizedCallStackWidget
                   callStack={currentFrame.callStack}
                   className="w-full"
                 />
@@ -323,15 +365,11 @@ function App() {
           )}
 
           {/* Pestaña: Currículum Académico */}
-          {/* Pestaña: Currículum Académico */}
           {activeTab === 'curriculum' && (
             <div className="flex-1 p-space-md min-h-0 overflow-y-auto">
-              <CurriculumView
+              <MemoizedCurriculumView
                 selectedAlgorithm={selectedAlgorithm}
-                onSelectAlgorithm={(id) => {
-                  handleSelectAlgorithm(id);
-                  setActiveTab('visualizer');
-                }}
+                onSelectAlgorithm={handleSelectAndGoToVisualizer}
               />
             </div>
           )}
@@ -339,11 +377,8 @@ function App() {
           {/* Pestaña: Biblioteca de Cuadernos Técnicos */}
           {activeTab === 'notebooks' && (
             <div className="flex-1 p-space-md min-h-0 overflow-y-auto">
-              <NotebooksView
-                onSelectAlgorithm={(id) => {
-                  handleSelectAlgorithm(id);
-                  setActiveTab('visualizer');
-                }}
+              <MemoizedNotebooksView
+                onSelectAlgorithm={handleSelectAndGoToVisualizer}
               />
             </div>
           )}
@@ -351,11 +386,8 @@ function App() {
           {/* Pestaña: Laboratorio Comparativo Big-O */}
           {activeTab === 'complexity-lab' && (
             <div className="flex-1 p-space-md min-h-0 overflow-y-auto">
-              <ComplexityLabView
-                onSelectAlgorithm={(id) => {
-                  handleSelectAlgorithm(id);
-                  setActiveTab('visualizer');
-                }}
+              <MemoizedComplexityLabView
+                onSelectAlgorithm={handleSelectAndGoToVisualizer}
               />
             </div>
           )}
@@ -372,7 +404,7 @@ function App() {
           onStepBack={stepBackward}
           onStepForward={stepForward}
           onScrub={goToStep}
-          onSpeedChange={(newSpeed) => setSpeed(newSpeed as PlaybackSpeed)}
+          onSpeedChange={handleSpeedChange}
         />
       )}
 
@@ -380,9 +412,9 @@ function App() {
       <ReloadPrompt />
 
       {/* 5. Ventana Flotante de Ficha Técnica y Fundamentos Teóricos */}
-      <AlgorithmTechnicalSheetModal
+      <MemoizedAlgorithmTechnicalSheetModal
         isOpen={isTechSheetOpen}
-        onClose={() => setIsTechSheetOpen(false)}
+        onClose={handleCloseTechnicalSheet}
         sheet={currentAlgorithm.technicalSheet}
         metadata={currentAlgorithm.metadata}
       />
