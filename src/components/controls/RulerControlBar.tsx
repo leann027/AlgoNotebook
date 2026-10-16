@@ -22,7 +22,7 @@ export interface RulerControlBarProps {
 
 const SPEED_OPTIONS = [0.5, 1.0, 2.0, 4.0];
 
-export const RulerControlBar: React.FC<RulerControlBarProps> = ({
+export const RulerControlBar = React.memo<RulerControlBarProps>(({
   frame,
   isPlaying,
   playbackSpeed,
@@ -34,6 +34,30 @@ export const RulerControlBar: React.FC<RulerControlBarProps> = ({
 }) => {
   const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
   const speedMenuRef = useRef<HTMLDivElement>(null);
+  const rafScrubRef = useRef<number | null>(null);
+  const pendingScrubStepRef = useRef<number | null>(null);
+
+  const handleScrubChange = (newStep: number) => {
+    pendingScrubStepRef.current = newStep;
+    if (rafScrubRef.current === null) {
+      rafScrubRef.current = requestAnimationFrame(() => {
+        if (pendingScrubStepRef.current !== null) {
+          onScrub(pendingScrubStepRef.current);
+          pendingScrubStepRef.current = null;
+        }
+        rafScrubRef.current = null;
+      });
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (rafScrubRef.current !== null) {
+        cancelAnimationFrame(rafScrubRef.current);
+        rafScrubRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -111,12 +135,12 @@ export const RulerControlBar: React.FC<RulerControlBarProps> = ({
                 min={1}
                 max={totalSteps}
                 value={currentStep}
-                onChange={(e) => onScrub(Number(e.target.value))}
+                onChange={(e) => handleScrubChange(Number(e.target.value))}
                 className="w-full h-1.5 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-ink-primary focus:outline-none"
                 title="Deslizador de pasos"
               />
             </div>
-            <span className="font-mono text-xs text-ink-primary font-bold whitespace-nowrap">
+            <span className="font-mono text-xs text-ink-primary font-bold whitespace-nowrap min-w-[4.5rem] text-center inline-block">
               {currentStep} / {totalSteps}
             </span>
           </div>
@@ -174,5 +198,7 @@ export const RulerControlBar: React.FC<RulerControlBarProps> = ({
       </div>
     </footer>
   );
-};
+});
+
+RulerControlBar.displayName = 'RulerControlBar';
 

@@ -22,15 +22,19 @@ export interface StudyCanvasProps {
   currentValues?: number[];
   onApplyInput?: (values: number[]) => void;
   onOpenTechnicalSheet?: () => void;
+  isPlaying?: boolean;
+  playbackSpeed?: number;
   className?: string;
 }
 
-export const StudyCanvas: React.FC<StudyCanvasProps> = ({
+export const StudyCanvas = React.memo<StudyCanvasProps>(({
   frame,
   metadata,
   currentValues,
   onApplyInput,
   onOpenTechnicalSheet,
+  isPlaying = false,
+  playbackSpeed = 1.0,
   className = 'lg:col-span-8',
 }) => {
   const isTree = metadata.viewportType === 'tree';
@@ -45,6 +49,18 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
   const matrixRows = frame.matrixState?.numRows ?? (frame.matrixState?.cells?.length ?? 0);
   const matrixCols = frame.matrixState?.numCols ?? (frame.matrixState?.cells?.[0]?.length ?? 0);
   const linkedListNodeCount = frame.linkedListState?.nodes?.length ?? array.length;
+
+  const delayMs = Math.round(1000 / playbackSpeed);
+  const transitionDurationMs = isPlaying ? Math.min(200, Math.round(delayMs * 0.55)) : 200;
+
+  const isBinarySearch =
+    metadata.id.includes('binary-search') ||
+    (metadata.category.toLowerCase().includes('búsqueda') && frame.pointers?.low !== undefined);
+  const isLowHighDefined = Boolean(
+    frame.pointers &&
+    typeof frame.pointers.low === 'number' &&
+    typeof frame.pointers.high === 'number'
+  );
 
   // Determine pointers associated with each index
   const getPointersForIndex = (index: number): string[] => {
@@ -215,6 +231,11 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
               <span className="font-bold">Elemento fijado</span>
               <span className="text-ink-secondary">→ Posición final</span>
             </div>
+          ) : frame.activeAction === 'pivot' ? (
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DDD6FE] border border-[#7C3AED] shadow-sm text-[#7C3AED] font-mono text-xs">
+              <span className="font-bold">Elemento Pivote Seleccionado</span>
+              <span className="text-[#7C3AED]/80">→ Partición activa</span>
+            </div>
           ) : (
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-paper-surface border border-paper-border text-ink-secondary font-mono text-xs">
               <span>
@@ -365,13 +386,19 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
                     const isComparing = state === 'comparing';
                     const isSwapping = state === 'swapping';
                     const isSorted = state === 'sorted';
+                    const isPivot = (state as string) === 'pivot';
+
+                    const isOutOfSearchRange =
+                      isBinarySearch &&
+                      isLowHighDefined &&
+                      (idx < frame.pointers!.low || idx > frame.pointers!.high);
 
                     return (
                       <div
                         key={idx}
                         className={`flex-1 max-w-[64px] flex flex-col items-center h-full justify-end ${
                           isComparing || isSwapping ? 'z-20' : 'z-10 group'
-                        }`}
+                        } ${isOutOfSearchRange ? 'opacity-35 grayscale' : ''}`}
                       >
                         {/* Top Value Label */}
                         <div className="mb-1 flex flex-col items-center">
@@ -381,6 +408,10 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
                             </span>
                           ) : isSwapping ? (
                             <span className="px-1.5 py-0.5 rounded bg-highlighter-swap border border-ink-primary font-mono text-xs font-bold text-ink-primary shadow-sm">
+                              {val}
+                            </span>
+                          ) : isPivot ? (
+                            <span className="px-1.5 py-0.5 rounded bg-[#DDD6FE] border-[2.5px] border-[#7C3AED] font-mono text-xs font-bold text-[#7C3AED] shadow-sm">
                               {val}
                             </span>
                           ) : isSorted ? (
@@ -396,12 +427,21 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
 
                         {/* Vertical Bar */}
                         <div
-                          style={{ height: `${heightPercent}%` }}
-                          className={`w-full max-w-[56px] rounded-t transition-all duration-300 ease-out ${
-                            isComparing
+                          style={{
+                            height: '100%',
+                            transform: `scaleY(${heightPercent / 100})`,
+                            transformOrigin: 'bottom',
+                            transitionDuration: `${transitionDurationMs}ms`,
+                          }}
+                          className={`w-full max-w-[56px] rounded-t transition-transform will-change-transform ease-out ${
+                            isOutOfSearchRange
+                              ? 'opacity-35 grayscale bg-surface-container-low border-dashed border-[2px] border-ink-muted/60'
+                              : isComparing
                               ? 'bg-highlighter-compare border-[2.5px] border-ink-primary ring-2 ring-highlighter-compare/50 flex flex-col justify-between items-center py-2'
                               : isSwapping
                               ? 'bg-highlighter-swap border-[2.5px] border-ink-primary ring-2 ring-highlighter-swap/50 flex flex-col justify-between items-center py-2'
+                              : isPivot
+                              ? 'bg-[#DDD6FE] border-[2.5px] border-[#7C3AED] ring-2 ring-[#DDD6FE]/60 flex flex-col justify-between items-center py-2'
                               : isSorted
                               ? 'bg-highlighter-success border-[2px] border-ink-primary flex flex-col justify-start items-center pt-2'
                               : 'bg-paper-surface border-[2px] border-ink-primary group-hover:bg-surface-container-low'
@@ -423,6 +463,11 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
                               </span>
                             </>
                           )}
+                          {isPivot && (
+                            <span className="font-mono text-[10px] font-extrabold text-[#7C3AED] uppercase tracking-wider">
+                              PIVOT
+                            </span>
+                          )}
                           {isSorted && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-ink-primary" />
                           )}
@@ -434,6 +479,8 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
                             className={`font-mono text-xs ${
                               isComparing || isSwapping
                                 ? 'font-bold text-ink-primary'
+                                : isPivot
+                                ? 'font-bold text-[#7C3AED]'
                                 : isSorted
                                 ? 'font-semibold text-ink-primary'
                                 : 'text-ink-muted'
@@ -446,6 +493,13 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
                           {isSorted && (
                             <span className="mt-0.5 px-1 bg-highlighter-success text-ink-primary font-mono text-[8px] rounded border border-ink-primary">
                               Ordenado
+                            </span>
+                          )}
+
+                          {/* Pivot Chip */}
+                          {isPivot && (
+                            <span className="mt-0.5 px-1 bg-[#DDD6FE] text-[#7C3AED] font-mono text-[8px] font-bold rounded border border-[#7C3AED]">
+                              Pivote
                             </span>
                           )}
 
@@ -469,11 +523,13 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
             {/* Baseline Sub-Axis Legend */}
             <div className="flex items-center justify-between pt-2 px-4 text-ink-muted font-mono text-xs">
               <span>← Recorrido de Índices y Punteros</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 flex-wrap">
                 <span className="w-2.5 h-2.5 rounded-sm bg-highlighter-compare border border-ink-primary inline-block" />
                 <span className="text-ink-secondary mr-2">Comparar</span>
                 <span className="w-2.5 h-2.5 rounded-sm bg-highlighter-swap border border-ink-primary inline-block" />
                 <span className="text-ink-secondary mr-2">Intercambiar</span>
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#DDD6FE] border border-[#7C3AED] inline-block" />
+                <span className="text-ink-secondary mr-2">Pivote</span>
                 <span className="w-2.5 h-2.5 rounded-sm bg-highlighter-success border border-ink-primary inline-block" />
                 <span className="text-ink-secondary">Fijado / Ordenado</span>
               </div>
@@ -483,4 +539,6 @@ export const StudyCanvas: React.FC<StudyCanvasProps> = ({
       </div>
     </section>
   );
-};
+});
+
+StudyCanvas.displayName = 'StudyCanvas';
