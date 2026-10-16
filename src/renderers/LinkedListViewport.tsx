@@ -193,13 +193,15 @@ export const LinkedListViewport: React.FC<LinkedListViewportProps> = ({
               // Flecha hacia atrás (Inversión o Ciclo)
               const spanDistance = fromPos.index - toPos.index;
               const isCycle = pointers.slow !== undefined || pointers.fast !== undefined || spanDistance > 1;
-              const toX = toPos.x + nodeWidth / 2;
+              // Desplazar punto de llegada a la izquierda del compartimento de datos para despejar la dirección de memoria central
+              const toX = toPos.x + 20;
               const toY = toPos.y + nodeHeight;
-              // Profundidad de arco generosa para esquivar limpiamente las direcciones de memoria inferiores
-              const arcDepth = Math.max(64, 46 + spanDistance * 18);
+              // Profundidad de arco optimizada para esquivar limpiamente las direcciones de memoria inferiores
+              const arcDepth = Math.max(76, 56 + spanDistance * 22);
               const controlY = fromY + arcDepth;
               const midX = (fromX + toX) / 2;
-              const pathD = `M ${fromX} ${fromY} Q ${midX} ${controlY} ${toX} ${toY + 8}`;
+              // Trayectoria Bézier cúbica con vectores de control verticales para descenso y ascenso limpios
+              const pathD = `M ${fromX} ${fromY} C ${fromX} ${controlY}, ${toX} ${controlY}, ${toX} ${toY + 8}`;
               return (
                 <g key={`arrow-back-${node.id}-to-${node.nextId}`}>
                   <path
@@ -443,15 +445,28 @@ export const LinkedListViewport: React.FC<LinkedListViewportProps> = ({
                 fill="#1E232A"
               />
 
-              {/* Dirección de Memoria Hexadecimal Simulada en C */}
-              <text
-                x={pos.x + nodeWidth / 2}
-                y={pos.y + nodeHeight + 16}
-                textAnchor="middle"
-                className="font-mono text-[10px] fill-ink-muted tracking-tight"
-              >
-                {node.address}
-              </text>
+              {/* Dirección de Memoria Hexadecimal Simulada en C con placa táctil protegida */}
+              <g transform={`translate(${pos.x + nodeWidth / 2}, ${pos.y + nodeHeight + 16})`}>
+                <rect
+                  x="-28"
+                  y="-8"
+                  width="56"
+                  height="16"
+                  rx="3"
+                  fill="#FDFBF7"
+                  stroke="#E5E0D8"
+                  strokeWidth="1"
+                />
+                <text
+                  x="0"
+                  y="0"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  className="font-mono text-[10px] font-medium fill-ink-muted tracking-tight"
+                >
+                  {node.address}
+                </text>
+              </g>
             </g>
           );
         })}

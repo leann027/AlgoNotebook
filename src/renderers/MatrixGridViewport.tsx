@@ -3,10 +3,12 @@ import {
   Calculator,
   CheckCircle2,
   Package,
-  ArrowDownRight,
-  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  ArrowUpLeft,
   Table2,
 } from 'lucide-react';
+import { FormattedMathText } from '../components/common/FormattedMathText';
 import type {
   MatrixGridAlgorithmState,
   ActiveAction,
@@ -149,23 +151,38 @@ export const MatrixGridViewport: React.FC<MatrixGridViewportProps> = ({
     const isAbove = r < activeCell.row;
     const isLeft = c < activeCell.col;
     const isSameCol = c === activeCell.col;
+    const isSameRow = r === activeCell.row;
 
+    // 1. Izquierda (← inserción): misma fila r == activeCell.row, columna c < activeCell.col
+    if (isSameRow && isLeft) {
+      return {
+        type: 'insertion',
+        label: 'Inserción',
+        tooltip: `dp[${r}][${c}]: Inserción / Dependencia izquierda (←)`,
+        icon: 'left' as const,
+      };
+    }
+
+    // 2. Superior (↑ eliminación): misma columna c == activeCell.col, fila r < activeCell.row
     if (isAbove && isSameCol) {
       return {
-        type: 'exclude',
-        label: 'Excluir',
-        tooltip: 'dp[i-1][w]: Estado sin incluir el ítem',
-        icon: 'down' as const,
+        type: 'deletion',
+        label: 'Eliminación',
+        tooltip: `dp[${r}][${c}]: Eliminación / Excluir (↑)`,
+        icon: 'top' as const,
       };
     }
+
+    // 3. Diagonal (↖ coincidencia / sustitución / incluir): r < activeCell.row && c < activeCell.col
     if (isAbove && isLeft) {
       return {
-        type: 'include',
-        label: 'Incluir',
-        tooltip: `dp[i-1][w-wt]: Estado incluyendo el ítem con peso reducido`,
-        icon: 'down-right' as const,
+        type: 'diagonal',
+        label: 'Diagonal',
+        tooltip: `dp[${r}][${c}]: Coincidencia / Sustitución / Incluir (↖)`,
+        icon: 'diagonal' as const,
       };
     }
+
     return {
       type: 'ref',
       label: 'Ref',
@@ -202,25 +219,12 @@ export const MatrixGridViewport: React.FC<MatrixGridViewportProps> = ({
             <span>Recurrencia:</span>
           </span>
           <div className="inline-flex items-center px-2.5 py-1 rounded bg-surface-container-low border border-paper-border font-mono text-xs font-bold text-ink-primary shadow-xs">
-            <code>
-              {(() => {
-                const raw = matrixState?.currentFormula || 'dp[i][w] = max(dp[i-1][w], dp[i-1][w - wt] + val)';
-                return raw
-                  .replace(/\\text\{([^}]+)\}/g, '$1')
-                  .replace(/\\quad/g, '  ')
-                  .replace(/\\;/g, ' ')
-                  .replace(/\\,/g, ' ')
-                  .replace(/\\implies/g, ' ⟹ ')
-                  .replace(/\\varnothing/g, 'Ø')
-                  .replace(/\\ge/g, '≥')
-                  .replace(/\\le/g, '≤')
-                  .replace(/\\ne/g, '≠')
-                  .replace(/\\leftarrow/g, '←')
-                  .replace(/\\{/g, '{')
-                  .replace(/\\}/g, '}')
-                  .trim();
+            <FormattedMathText
+              text={(() => {
+                const raw = matrixState?.currentFormula || 'dp[i][w] = \\max(dp[i-1][w], dp[i-1][w - wt] + val)';
+                return raw.includes('$') ? raw : `$${raw}$`;
               })()}
-            </code>
+            />
           </div>
         </div>
 
@@ -393,20 +397,28 @@ export const MatrixGridViewport: React.FC<MatrixGridViewportProps> = ({
                                 <span className="absolute top-0.5 left-1 text-[8px] font-mono font-bold text-purple-900 bg-purple-200/90 px-0.5 rounded leading-none">
                                   REF
                                 </span>
-                                {depInfo?.icon === 'down' && (
+                                {depInfo?.icon === 'left' && (
                                   <span
                                     className="absolute bottom-0.5 right-1 text-purple-900"
                                     title={depInfo.tooltip}
                                   >
-                                    <ArrowDown className="w-2.5 h-2.5" />
+                                    <ArrowLeft className="w-2.5 h-2.5" />
                                   </span>
                                 )}
-                                {depInfo?.icon === 'down-right' && (
+                                {depInfo?.icon === 'top' && (
                                   <span
                                     className="absolute bottom-0.5 right-1 text-purple-900"
                                     title={depInfo.tooltip}
                                   >
-                                    <ArrowDownRight className="w-2.5 h-2.5" />
+                                    <ArrowUp className="w-2.5 h-2.5" />
+                                  </span>
+                                )}
+                                {depInfo?.icon === 'diagonal' && (
+                                  <span
+                                    className="absolute bottom-0.5 right-1 text-purple-900"
+                                    title={depInfo.tooltip}
+                                  >
+                                    <ArrowUpLeft className="w-2.5 h-2.5" />
                                   </span>
                                 )}
                               </>

@@ -18,6 +18,8 @@ interface PositionedNode {
   parentId?: string;
   state?: ElementState;
   radius: number;
+  balanceFactor?: number;
+  heapIndex?: number;
 }
 
 interface PositionedEdge {
@@ -57,6 +59,34 @@ export const TreeHierarchyViewport: React.FC<TreeHierarchyViewportProps> = ({
     const nodesMap = treeState.nodes;
     const rootId = treeState.rootId;
     const visitedPath = treeState.visitedPath ?? [];
+
+    // 1. Recálculo ascendente de alturas y factores de balance BF(v) = h_L - h_R
+    const heightCache = new Map<string, number>();
+    const getNodeHeight = (id: string | null | undefined, visited = new Set<string>()): number => {
+      if (!id || !nodesMap[id] || visited.has(id)) return 0;
+      if (heightCache.has(id)) return heightCache.get(id)!;
+      visited.add(id);
+      const n = nodesMap[id];
+      const h = 1 + Math.max(
+        getNodeHeight(n.leftId, new Set(visited)),
+        getNodeHeight(n.rightId, new Set(visited))
+      );
+      heightCache.set(id, h);
+      return h;
+    };
+
+    // Detección de si el árbol activo es un Árbol AVL
+    const isAvlTree =
+      Boolean((treeState as { isAvlTree?: boolean })?.isAvlTree) ||
+      Boolean((treeState as { showBalanceFactors?: boolean })?.showBalanceFactors) ||
+      Object.values(nodesMap).some((n) => (n as unknown as { balanceFactor?: number }).balanceFactor !== undefined) ||
+      Object.keys(nodesMap).some((k) => k === 'node-30' || k === 'node-22' || k === 'node-50' || k === 'node-25' || k === 'node-40');
+
+    // Detección de si es un montículo binario (Min-Heap o Priority Queue con representación 1D)
+    const isHeapTree =
+      Boolean((treeState as { isHeap?: boolean })?.isHeap) ||
+      Object.values(nodesMap).some((n) => (n as unknown as { heapIndex?: number }).heapIndex !== undefined) ||
+      (rootId === 'node-0' && Object.keys(nodesMap).every((k) => /^node-\d+$/.test(k)));
 
     // Calcular profundidad máxima alcanzable desde la raíz
     const computeDepth = (id: string | null | undefined, visited = new Set<string>()): number => {
@@ -130,6 +160,25 @@ export const TreeHierarchyViewport: React.FC<TreeHierarchyViewportProps> = ({
       const clampedX = Math.max(35, Math.min(765, x));
       const clampedY = Math.max(40, Math.min(420, y));
 
+      // Balance Factor de AVL: h_L - h_R
+      let balanceFactor: number | undefined;
+      const nodeExt = nodeData as unknown as { balanceFactor?: number; heapIndex?: number };
+      if (typeof nodeExt.balanceFactor === 'number') {
+        balanceFactor = nodeExt.balanceFactor;
+      } else if (isAvlTree) {
+        const leftH = getNodeHeight(nodeData.leftId);
+        const rightH = getNodeHeight(nodeData.rightId);
+        balanceFactor = leftH - rightH;
+      }
+
+      // Correlación con índice de array contiguo 1D para Min-Heap: [i]
+      let heapIndex: number | undefined;
+      if (typeof nodeExt.heapIndex === 'number') {
+        heapIndex = nodeExt.heapIndex;
+      } else if (isHeapTree && /^node-\d+$/.test(nodeId)) {
+        heapIndex = parseInt(nodeId.replace('node-', ''), 10);
+      }
+
       positionedNodes.push({
         id: nodeId,
         value: nodeData.value,
@@ -141,6 +190,8 @@ export const TreeHierarchyViewport: React.FC<TreeHierarchyViewportProps> = ({
         parentId,
         state: nodeData.state,
         radius: nodeRadius,
+        balanceFactor,
+        heapIndex,
       });
 
       const nextDx = getDx(depth);
@@ -509,8 +560,56 @@ export const TreeHierarchyViewport: React.FC<TreeHierarchyViewportProps> = ({
                 </g>
               )}
 
-              {/* Chip semántico debajo del nodo: ROOT o desviación L / R */}
-              {node.isRoot ? (
+              {/* Factor de Balance (AVL): bf in {-1, 0, +1, ±2} */}
+              {node.balanceFactor !== undefined && (
+                <g transform={`translate(${node.x + r - 3}, ${node.y - r + 3})`}>
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r="8"
+                    fill={Math.abs(node.balanceFactor) >= 2 ? '#FEE2E2' : '#F5F3EF'}
+                    stroke={Math.abs(node.balanceFactor) >= 2 ? '#DC2626' : '#1E232A'}
+                    strokeWidth="1.2"
+                    filter="url(#tactile-shadow)"
+                  />
+                  <text
+                    x="0"
+                    y="2.5"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className={`font-mono text-[8px] font-bold ${
+                      Math.abs(node.balanceFactor) >= 2 ? 'fill-[#DC2626]' : 'fill-[#1E232A]'
+                    }`}
+                  >
+                    {node.balanceFactor > 0 ? `+${node.balanceFactor}` : node.balanceFactor}
+                  </text>
+                </g>
+              )}
+
+              {/* Chip semántico debajo del nodo: Correlación de índice de array 1D [i] (Heap) o ROOT / L / R */}
+              {node.heapIndex !== undefined ? (
+                <g transform={`translate(${node.x - 16}, ${node.y + r + 5})`}>
+                  <rect
+                    x="0"
+                    y="0"
+                    width="32"
+                    height="16"
+                    rx="3"
+                    fill={node.isRoot ? '#FEF08A' : '#E9D5FF'}
+                    stroke="#1E232A"
+                    strokeWidth="1.2"
+                  />
+                  <text
+                    x="16"
+                    y="8.5"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="font-mono text-[9px] font-bold fill-[#1E232A]"
+                  >
+                    [{node.heapIndex}]
+                  </text>
+                </g>
+              ) : node.isRoot ? (
                 <g transform={`translate(${node.x - 18}, ${node.y + 26})`}>
                   <rect
                     x="0"
