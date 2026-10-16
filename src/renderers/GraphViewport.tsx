@@ -30,6 +30,47 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
   const edgesList: GraphEdgeData[] = graphState?.edges ?? [];
   const isEmpty = nodesList.length === 0;
 
+  // Detección heurística de grafos dirigidos (Topological Sort, Bellman-Ford, Strongly Connected Components)
+  const isGraphDirected = useMemo(() => {
+    if (!graphState) return false;
+    if ((graphState as { isDirected?: boolean })?.isDirected !== undefined) {
+      return Boolean((graphState as { isDirected?: boolean }).isDirected);
+    }
+    const currentEdges = graphState.edges ?? [];
+    const currentNodes = graphState.nodes ?? {};
+    if (
+      currentEdges.some((e) => {
+        const edgeExt = e as unknown as { isDirected?: boolean; directed?: boolean };
+        return edgeExt.isDirected || edgeExt.directed;
+      })
+    ) {
+      return true;
+    }
+    const nodeIds = Object.keys(currentNodes);
+    // SCC canónico: 7 nodos (A..G) con vértice G o aristas de ciclo/retorno
+    if (nodeIds.includes('G')) return true;
+    // Bellman-Ford canónico: 5 nodos (A..E) con arista de peso negativo o IDs e-C-B / e-D-E
+    if (
+      currentEdges.some(
+        (e) =>
+          (e.weight !== undefined && e.weight < 0) ||
+          e.id === 'e-C-B' ||
+          (e.id === 'e-D-E' && nodeIds.length === 5)
+      )
+    ) {
+      return true;
+    }
+    // Topological Sort canónico: 6 nodos (A..F), 7 aristas acíclicas dirigidas sin pesos
+    if (nodeIds.length === 6 && currentEdges.length === 7 && currentEdges.every((e) => e.weight === undefined)) {
+      return true;
+    }
+    // Detección general por aristas antiparalelas
+    if (currentEdges.some((e1) => currentEdges.some((e2) => e1.from === e2.to && e1.to === e2.from))) {
+      return true;
+    }
+    return false;
+  }, [graphState]);
+
   return (
     <div
       className={`relative w-full h-full min-h-[440px] flex items-center justify-center select-none ${className}`}
@@ -58,6 +99,19 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
           <filter id="graph-tactile-shadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="#1E232A" floodOpacity="0.08" />
           </filter>
+
+          {/* Marcador de flecha para aristas dirigidas (Topological Sort, Bellman-Ford, SCC) */}
+          <marker
+            id="graph-arrow-head"
+            viewBox="0 0 10 10"
+            refX="21"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto"
+          >
+            <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1E232A" />
+          </marker>
         </defs>
 
         {/* Fondo con rejilla técnica sutil de ingeniería */}
@@ -106,13 +160,25 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
 
             const isActive = edge.state === 'active' || edge.id === graphState?.activeEdgeId;
             const isTraversed = edge.state === 'traversed';
+            const edgeExt = edge as unknown as { isDirected?: boolean; directed?: boolean };
+            const isDirectedEdge = edgeExt.isDirected ?? edgeExt.directed ?? isGraphDirected;
 
             const midX = (fromNode.x + toNode.x) / 2;
             const midY = (fromNode.y + toNode.y) / 2;
 
+            // Desplazamiento normal perpendicular para evitar colisiones con aristas que intersectan
+            const dx = toNode.x - fromNode.x;
+            const dy = toNode.y - fromNode.y;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
+            const badgeOffsetDist = 8;
+            const badgeX = midX + nx * badgeOffsetDist;
+            const badgeY = midY + ny * badgeOffsetDist;
+
             return (
               <g key={edge.id || `${edge.from}-${edge.to}`}>
-                {/* Resaltador ancho bajo la línea para arista activa */}
+                {/* Capa 1: Under-glow highlighter wash para arista activa (#FEF08A 10px opacidad 0.85) */}
                 {isActive && (
                   <line
                     x1={fromNode.x}
@@ -120,13 +186,13 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
                     x2={toNode.x}
                     y2={toNode.y}
                     stroke="#FEF08A"
-                    strokeWidth={8}
+                    strokeWidth={10}
                     strokeLinecap="round"
-                    opacity={0.8}
+                    opacity={0.85}
                   />
                 )}
 
-                {/* Resaltador suave bajo la línea para arista recorrida */}
+                {/* Resaltador suave bajo la línea para arista recorrida (#BBF7D0 6px) */}
                 {isTraversed && !isActive && (
                   <line
                     x1={fromNode.x}
@@ -140,20 +206,21 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
                   />
                 )}
 
-                {/* Trazo principal de la arista */}
+                {/* Capa 2: Trazo principal de tinta carbón (#1E232A 3px core) con flecha orientada en grafos dirigidos */}
                 <line
                   x1={fromNode.x}
                   y1={fromNode.y}
                   x2={toNode.x}
                   y2={toNode.y}
-                  stroke={isActive ? '#FEF08A' : isTraversed ? '#BBF7D0' : '#1E232A'}
-                  strokeWidth={isActive ? 3.5 : isTraversed ? 3 : 2}
+                  stroke={isActive ? '#1E232A' : isTraversed ? '#16A34A' : '#1E232A'}
+                  strokeWidth={isActive ? 3 : isTraversed ? 2.5 : 1.75}
                   strokeLinecap="round"
+                  markerEnd={isDirectedEdge ? 'url(#graph-arrow-head)' : undefined}
                 />
 
-                {/* Placa / badge redondeada para peso de arista */}
+                {/* Placa / badge redondeada para peso de arista con despeje perpendicular */}
                 {edge.weight !== undefined && (
-                  <g transform={`translate(${midX}, ${midY})`} filter="url(#graph-tactile-shadow)">
+                  <g transform={`translate(${badgeX}, ${badgeY})`} filter="url(#graph-tactile-shadow)">
                     <rect
                       x="-14"
                       y="-10"
@@ -422,15 +489,15 @@ export const GraphViewport: React.FC<GraphViewportProps> = ({
                           </td>
                           <td className="py-1 px-2.5">
                             {entry.isSettled ? (
-                              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#BBF7D0] text-[#166534] border border-[#86EFAC]">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#BBF7D0] text-[#166534] border border-[#86EFAC]">
                                 Cerrado
                               </span>
                             ) : isCurrent ? (
-                              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#FEF08A] text-[#854D0E] border border-[#FDE047] animate-pulse">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FEF08A] text-[#854D0E] border border-[#FDE047] animate-pulse">
                                 Evaluando
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-surface-container-low text-ink-muted border border-paper-border">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container-low text-ink-muted border border-paper-border">
                                 Pendiente
                               </span>
                             )}
