@@ -12,6 +12,7 @@ export * from './modals/ComplexityLabModal';
 export * from './modals/CurriculumModal';
 export * from './modals/LaboratorySettingsModal';
 export * from './modals/AlgorithmTechnicalSheetModal';
+export * from './modals/KeyboardShortcutsModal';
 export * from './views';
 export * from './views/NotebooksView';
 export * from './views/CurriculumView';

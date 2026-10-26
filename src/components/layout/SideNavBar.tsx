@@ -10,55 +10,11 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { ALGORITHM_REGISTRY } from '../../algorithms';
-
-type AlgorithmLevel = 'introductory' | 'intermediate' | 'advanced';
-
-const ALGORITHM_LEVELS: Record<string, AlgorithmLevel> = {
-  'bubble-sort': 'introductory',
-  'insertion-sort': 'introductory',
-  'selection-sort': 'introductory',
-  'binary-search': 'introductory',
-  'linear-binary-search': 'introductory',
-  'priority-queue': 'introductory',
-
-  'quick-sort': 'intermediate',
-  'merge-sort': 'intermediate',
-  'bst-insertion': 'intermediate',
-  'inorder-traversal': 'intermediate',
-  'preorder-traversal': 'intermediate',
-  'stack-operations': 'intermediate',
-  'queue-operations': 'intermediate',
-  'reverse-linked-list': 'intermediate',
-  'insert-linked-list': 'intermediate',
-  'kadane': 'intermediate',
-  'topological-sort': 'intermediate',
-  'avl-tree': 'intermediate',
-
-  'min-heap': 'advanced',
-  'bfs-graph': 'advanced',
-  'dfs-graph': 'advanced',
-  'dijkstra-graph': 'advanced',
-  'kruskal-graph': 'advanced',
-  'knapsack-dp': 'advanced',
-  'lcs-dp': 'advanced',
-  'coin-change-dp': 'advanced',
-  'cycle-detection': 'advanced',
-  'bellman-ford': 'advanced',
-  'levenshtein-distance': 'advanced',
-  'strongly-connected-components': 'advanced',
-};
-
-const LEVEL_DOT_CLASSES: Record<AlgorithmLevel, string> = {
-  introductory: 'bg-emerald-500',
-  intermediate: 'bg-amber-500',
-  advanced: 'bg-indigo-500',
-};
-
-const LEVEL_LABELS: Record<AlgorithmLevel, string> = {
-  introductory: 'Introductorio',
-  intermediate: 'Intermedio',
-  advanced: 'Avanzado',
-};
+import {
+  ALGORITHM_LEVELS,
+  LEVEL_DOT_CLASSES,
+  LEVEL_LABELS,
+} from '../../data/curriculumData';
 
 export interface SideNavCategoryGroup {
   id: string;

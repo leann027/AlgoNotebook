@@ -1,4 +1,4 @@
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import {
   X,
   TrendingUp,
@@ -32,6 +32,20 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
   );
   const [hoveredAlgoId, setHoveredAlgoId] = useState<string | null>(null);
   const titleId = useId();
+
+  // Escape key handler
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -87,7 +101,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150"
+      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150 overscroll-contain"
       onClick={onClose}
     >
       <div
@@ -95,16 +109,16 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Laboratorio */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-paper-border bg-paper-surface shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded bg-surface-container border border-paper-border text-ink-primary">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-paper-border bg-paper-surface shrink-0 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded bg-surface-container border border-paper-border text-ink-primary shrink-0">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <div>
-              <h3 id={titleId} className="font-headline font-bold text-sm tracking-tight text-ink-primary">
+            <div className="min-w-0">
+              <h3 id={titleId} className="font-headline font-bold text-sm tracking-tight text-ink-primary truncate">
                 Laboratorio de Complejidad Asintótica — Big-O Lab
               </h3>
-              <p className="font-mono text-[11px] text-ink-secondary">
+              <p className="font-mono text-[11px] text-ink-secondary truncate">
                 Comparación interactiva de costos computacionales y selección dinámica de algoritmos
               </p>
             </div>
@@ -112,7 +126,8 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded hover:bg-surface-container-low text-ink-secondary hover:text-ink-primary transition-colors"
+            className="p-1.5 rounded hover:bg-surface-container-low text-ink-secondary hover:text-ink-primary transition-colors shrink-0 ml-2 cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
+            title="Cerrar (Esc)"
             aria-label="Cerrar modal"
           >
             <X className="w-4 h-4" />
@@ -120,7 +135,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
         </div>
 
         {/* Contenido con Scroll */}
-        <div className="p-5 overflow-y-auto space-y-5 flex-1">
+        <div className="p-5 overflow-y-auto overscroll-contain space-y-5 flex-1">
           {/* Slider de N y Filtros */}
           <div className="bg-surface-container-low/60 border border-paper-border rounded-lg p-4 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
@@ -150,7 +165,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSelectSorting}
-                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors flex items-center gap-1"
+                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors flex items-center gap-1 cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
                 >
                   <BarChart2 className="w-2.5 h-2.5" />
                   <span>Ordenamiento</span>
@@ -158,7 +173,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSelectTop4}
-                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors flex items-center gap-1"
+                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors flex items-center gap-1 cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
                 >
                   <Sparkles className="w-2.5 h-2.5" />
                   <span>Top 4</span>
@@ -166,14 +181,14 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSelectAll}
-                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors"
+                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-primary hover:bg-surface-container transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
                 >
                   <span>Todos (12)</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-muted hover:text-ink-primary transition-colors"
+                  className="px-2 py-1 rounded bg-paper-surface border border-paper-border font-mono text-[10px] font-bold text-ink-muted hover:text-ink-primary transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
                 >
                   <span>Limpiar</span>
                 </button>
@@ -195,7 +210,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
                       onClick={() => toggleAlgorithm(algo.id)}
                       onMouseEnter={() => setHoveredAlgoId(algo.id)}
                       onMouseLeave={() => setHoveredAlgoId(null)}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[11px] transition-all border ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[11px] transition-all border cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none ${
                         isSelected
                           ? 'bg-paper-surface border-ink-primary font-bold text-ink-primary shadow-xs'
                           : 'bg-paper-surface/50 border-paper-border text-ink-muted hover:text-ink-primary opacity-60'
@@ -429,7 +444,7 @@ export const ComplexityLabModal: React.FC<ComplexityLabModalProps> = ({
                               onSelectAlgorithm(algo.id);
                               onClose();
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-ink-primary text-paper-surface hover:bg-ink-primary/90 text-[10px] font-bold transition-all shadow-xs"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-ink-primary text-paper-surface hover:bg-ink-primary/90 text-[10px] font-bold transition-all shadow-xs cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
                           >
                             <Play className="w-2 h-2" />
                             <span>Cargar</span>

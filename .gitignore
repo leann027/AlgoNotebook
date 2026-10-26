@@ -24,11 +24,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # ------------------------------------------------------------------------------
-# 3. Herramientas y artefactos de IA (Agentes, Copilot, Claude, OpenCode)
+# 3. Herramientas y artefactos de IA (Agentes, Copilot, Claude, OpenCode, Graphify)
 # ------------------------------------------------------------------------------
 .agents/
 Agents.md
 _context.md
+graphify-out/
 .claude/
 .claudian/
 .copilot/

@@ -28,7 +28,7 @@ export const AlgorithmTechnicalSheet: React.FC<AlgorithmTechnicalSheetProps> = (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full p-2.5 sm:p-3 rounded-lg bg-paper-surface border border-paper-border hover:bg-surface-container-low transition-all shadow-tactile-card flex items-center justify-between text-left group cursor-pointer ${className}`.trim()}
+      className={`w-full p-2.5 sm:p-3 rounded-lg bg-paper-surface border border-paper-border hover:bg-surface-container-low transition-all shadow-tactile-card flex items-center justify-between text-left group cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none ${className}`.trim()}
       title="Abrir Ficha Técnica y Fundamentos Teóricos (Ventana Flotante)"
       aria-label="Abrir Ficha Técnica y Fundamentos Teóricos"
     >

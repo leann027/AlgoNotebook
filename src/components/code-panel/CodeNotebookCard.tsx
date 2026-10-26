@@ -128,7 +128,7 @@ export const CodeNotebookCard: React.FC<CodeNotebookCardProps> = ({
           <button
             type="button"
             onClick={() => onSelectLang('python')}
-            className={`px-3.5 py-1.5 font-mono text-xs transition-colors ${
+            className={`px-3.5 py-1.5 font-mono text-xs transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none ${
               activeLang === 'python'
                 ? 'bg-paper-surface text-ink-primary border-t border-l border-r border-paper-border rounded-t font-bold flex items-center gap-1.5 shadow-sm -mb-px z-10'
                 : 'text-ink-secondary hover:text-ink-primary'
@@ -144,7 +144,7 @@ export const CodeNotebookCard: React.FC<CodeNotebookCardProps> = ({
           <button
             type="button"
             onClick={() => onSelectLang('c')}
-            className={`px-3.5 py-1.5 font-mono text-xs transition-colors ${
+            className={`px-3.5 py-1.5 font-mono text-xs transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none ${
               activeLang === 'c'
                 ? 'bg-paper-surface text-ink-primary border-t border-l border-r border-paper-border rounded-t font-bold flex items-center gap-1.5 shadow-sm -mb-px z-10'
                 : 'text-ink-secondary hover:text-ink-primary'
@@ -184,10 +184,10 @@ export const CodeNotebookCard: React.FC<CodeNotebookCardProps> = ({
             return (
               <div
                 key={lineNum}
-                className={`flex items-center px-1 rounded transition-colors ${
+                className={`flex items-center px-1 py-0.5 rounded transition-colors ${
                   isLineActive
-                    ? 'bg-highlighter-compare border-l-4 border-ink-primary py-0.5'
-                    : 'hover:bg-surface-container-low'
+                    ? 'bg-highlighter-compare border-l-4 border-ink-primary'
+                    : 'border-l-4 border-transparent hover:bg-surface-container-low'
                 }`}
               >
                 {/* Line number / Active arrow marker */}

@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useEffect, useId } from 'react';
 import { X, GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { ALGORITHM_REGISTRY } from '../../algorithms';
 
@@ -9,51 +9,7 @@ export interface CurriculumModalProps {
   selectedAlgorithm: string;
 }
 
-interface CurriculumUnit {
-  number: string;
-  title: string;
-  description: string;
-  algorithms: string[];
-}
-
-const CURRICULUM_UNITS: CurriculumUnit[] = [
-  {
-    number: 'UNIDAD 1',
-    title: 'Fundamentos de Ordenamiento e Invariantes',
-    description: 'Análisis de estabilidad, intercambio adyacente y partición recursiva mediante divide y vencerás.',
-    algorithms: ['bubble-sort', 'quick-sort', 'merge-sort'],
-  },
-  {
-    number: 'UNIDAD 2',
-    title: 'Búsqueda y Reducción Logarítmica',
-    description: 'Sondeo binario sobre secuencias ordenadas y descarte sistemático de mitades del espacio de búsqueda.',
-    algorithms: ['binary-search'],
-  },
-  {
-    number: 'UNIDAD 3',
-    title: 'Estructuras Jerárquicas, Árboles y Montículos',
-    description: 'Preservación del invariante de árbol binario de búsqueda, inspección simétrica inorden y colas de prioridad con min-heap.',
-    algorithms: ['bst-insertion', 'inorder-traversal', 'preorder-traversal', 'min-heap'],
-  },
-  {
-    number: 'UNIDAD 4',
-    title: 'Grafos: Exploración, Rutas y Optimización',
-    description: 'Recorridos sistemáticos por niveles (BFS), profundidad con backtracking (DFS), relajación greedy (Dijkstra) y árbol de expansión mínima (Kruskal).',
-    algorithms: ['bfs-graph', 'dfs-graph', 'dijkstra-graph', 'kruskal-graph'],
-  },
-  {
-    number: 'UNIDAD 5',
-    title: 'Memorización y Programación Dinámica',
-    description: 'Construcción tabular ascendente, subproblemas solapados, ecuación de Bellman para la Mochila 0/1, subsecuencia común (LCS) y cambio mínimo de monedas.',
-    algorithms: ['knapsack-dp', 'lcs-dp', 'coin-change-dp'],
-  },
-  {
-    number: 'UNIDAD 6',
-    title: 'Topología de Punteros y Memoria Lineal',
-    description: 'Manipulación física in-place de referencias de memoria, técnica de punteros rápidos/lentos (Tortoise & Hare), buffer LIFO (Stack) y buffer FIFO (Queue).',
-    algorithms: ['reverse-linked-list', 'cycle-detection', 'stack-operations', 'queue-operations'],
-  },
-];
+import { CURRICULUM_UNITS } from '../../data/curriculumData';
 
 export const CurriculumModal: React.FC<CurriculumModalProps> = ({
   isOpen,
@@ -63,6 +19,20 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
 }) => {
   const titleId = useId();
 
+  // Escape key handler
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -70,7 +40,7 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150"
+      className="fixed inset-0 bg-ink-primary/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-150 overscroll-contain"
       onClick={onClose}
     >
       <div
@@ -78,16 +48,16 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Curriculum */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-paper-border bg-paper-surface shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded bg-surface-container border border-paper-border text-ink-primary">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-paper-border bg-paper-surface shrink-0 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded bg-surface-container border border-paper-border text-ink-primary shrink-0">
               <GraduationCap className="w-5 h-5" />
             </div>
-            <div>
-              <h3 id={titleId} className="font-headline font-bold text-sm tracking-tight text-ink-primary">
+            <div className="min-w-0">
+              <h3 id={titleId} className="font-headline font-bold text-sm tracking-tight text-ink-primary truncate">
                 Plan de Estudios — Currículum DSA
               </h3>
-              <p className="font-mono text-[11px] text-ink-secondary">
+              <p className="font-mono text-[11px] text-ink-secondary truncate">
                 Ruta formativa estructurada de Estructuras de Datos y Algoritmos de Ingeniería
               </p>
             </div>
@@ -95,15 +65,16 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded text-ink-secondary hover:text-ink-primary hover:bg-surface-container transition-colors"
+            className="p-1.5 rounded text-ink-secondary hover:text-ink-primary hover:bg-surface-container transition-colors shrink-0 ml-2 cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
             title="Cerrar (Esc)"
+            aria-label="Cerrar modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Unidades Formativas con Scroll */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {CURRICULUM_UNITS.map((unit) => (
               <div
@@ -143,7 +114,7 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
                           onSelectAlgorithm(algoId);
                           onClose();
                         }}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded text-xs transition-all ${
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded text-xs transition-all cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none ${
                           isCurrent
                             ? 'bg-paper-surface border-2 border-ink-primary shadow-xs font-bold text-ink-primary'
                             : 'bg-paper-surface/80 border border-paper-border hover:bg-paper-surface text-ink-primary'
@@ -178,7 +149,8 @@ export const CurriculumModal: React.FC<CurriculumModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 rounded border border-paper-border bg-paper-surface text-ink-primary font-bold hover:bg-surface-container transition-colors"
+            className="px-3 py-1.5 rounded border border-paper-border bg-paper-surface text-ink-primary font-bold hover:bg-surface-container transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-ink-primary focus-visible:outline-none"
+            aria-label="Cerrar modal"
           >
             Cerrar
           </button>
